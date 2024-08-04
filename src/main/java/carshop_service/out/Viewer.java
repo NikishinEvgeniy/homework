@@ -1,0 +1,61 @@
+package carshop_service.out;
+
+import carshop_service.entity.Car;
+import carshop_service.entity.Client;
+import carshop_service.entity.Log;
+import carshop_service.entity.Order;
+
+import java.util.List;
+
+public interface Viewer {
+    void showMainPage();
+    void showRegistrationTitle();
+    void showEnterId();
+    void showEnterPassword();
+    void showEnterLogin();
+    void showEnterRole();
+    void showAuthorizationTitle();
+    void showAdminCommandPage();
+    void showManagerCommandPage();
+    void showClientCommandPage();
+    void showMainMenuTitle();
+    void showAllCarsPage(List<Car> cars);
+    void showAllLogsPage(List<Log> logs);
+    void showAllOrdersPage(List<Order> orders);
+    void showAllClientsPage(List<Client> clients);
+    void showAvaibleCarsTitle();
+    void showAvaibleOrdersTitle();
+    void showMagazineTitle();
+    void showEnterCarBrand();
+    void showEnterCarModel();
+    void showEnterCarPrice();
+    void showEnterCarYear();
+    void showEnterCondition();
+    void showEnterName();
+    void showEnterSurname();
+    void showEnterOrderType();
+    void showSuccessTitle();
+    void showEnterData();
+    void showSimpleCar(Car car);
+    void showSimpleOrder(Order order);
+    void showSimpleClient(Client client);
+    void showUpdateTitle();
+    void showCreateOrderTitle();
+    void showEnterCarId();
+    void showEnterClientId();
+    void showEnterCountOfBuy();
+    void showEnterMonth();
+    void showEnterDay();
+    void showEnterAction();
+    void showEnterHour();
+    void showEnterChoose();
+    void showAvaibleClientsTitle();
+    void showAvaibleFiltersTitle();
+    void showAvaibleSortsTitle();
+    void showOutputMenu();
+    void showClientOutputVariableMenu();
+    void showFilterMenu();
+    void showCarOutputVariableMenu();
+    void showOrderOutputVariableMenu();
+    void showLogsOutputVariableMenu();
+}
