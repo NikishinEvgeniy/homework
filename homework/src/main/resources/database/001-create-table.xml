@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+    <changeSet id="001-create-table" author="evgen">
+
+        <createTable tableName="car" schemaName="private_schema">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="brand" type="VARCHAR(255)"/>
+            <column name="model" type="VARCHAR(255)"/>
+            <column name="condition" type="VARCHAR(255)"/>
+            <column name="price" type="FLOAT"/>
+            <column name="year_of_release" type="INTEGER"/>
+        </createTable>
+
+        <createTable tableName="orders" schemaName="private_schema">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="car_id" type="INTEGER"/>
+            <column name="client_id" type="INTEGER"/>
+            <column name="state" type="VARCHAR(255)"/>
+            <column name="type" type="VARCHAR(255)"/>
+            <column name="date_time" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="client" schemaName="private_schema">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="surname" type="VARCHAR(255)"/>
+            <column name="login" type="VARCHAR(255)"/>
+            <column name="password" type="VARCHAR(255)"/>
+            <column name="role" type="VARCHAR(255)"/>
+            <column name="state" type="VARCHAR(255)"/>
+            <column name="count_of_buy" type="INTEGER"/>
+        </createTable>
+
+        <createTable tableName="log" schemaName="private_schema">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="client_id" type="INTEGER"/>
+            <column name="action" type="VARCHAR(255)"/>
+            <column name="date_time" type="VARCHAR(255)"/>
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>

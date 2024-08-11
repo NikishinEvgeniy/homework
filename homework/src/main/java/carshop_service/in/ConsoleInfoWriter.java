@@ -1,12 +1,11 @@
 package carshop_service.in;
 
+import lombok.AllArgsConstructor;
 import java.util.Scanner;
 
+@AllArgsConstructor
 public class ConsoleInfoWriter implements Writer {
     private Scanner scanner;
-    public ConsoleInfoWriter(){
-        this.scanner = new Scanner(System.in);
-    }
     public String getLogin(){ return scanner.next();}
     public String getPassword(){ return scanner.next();}
     public String getRole(){ return scanner.next();}

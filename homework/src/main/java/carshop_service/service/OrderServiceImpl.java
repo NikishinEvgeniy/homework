@@ -1,17 +1,14 @@
 package carshop_service.service;
 
 import carshop_service.dao.OrderDao;
-import carshop_service.dao.OrderDaoImpl;
 import carshop_service.entity.Order;
-
+import lombok.AllArgsConstructor;
 import java.util.List;
 
+@AllArgsConstructor
 public class OrderServiceImpl implements OrderService {
-    private OrderDao orderDao;
 
-    public OrderServiceImpl(){
-        this.orderDao = new OrderDaoImpl();
-    }
+    private OrderDao orderDao;
 
     @Override
     public void addOrder(Order order) {
@@ -34,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void deleteOrder(Order order) {
-        this.orderDao.deleteOrder(order);
+    public void deleteOrder(int id) {
+        this.orderDao.deleteOrder(id);
     }
 }

@@ -1,48 +1,91 @@
 package carshop_service.dao;
 
+import carshop_service.application.ConfigLoader;
 import carshop_service.entity.Car;
+import carshop_service.entity.StandartCarBuilder;
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
-
+@Testcontainers
 public class CarDaoTest {
-    private CarDaoImpl carDao = new CarDaoImpl();
+    @Container
+    private static PostgreSQLContainer<?> postgreSQLContainer
+            = new PostgreSQLContainer<>("postgres:latest")
+            .withDatabaseName("car_serivce")
+            .withUsername("evgen")
+            .withPassword("admin");
+    private static CarDao carDao;
 
 
-    @Test
-    @DisplayName(" Ошибка при получение машины ")
-    public void getCarTest_false(){
-        Assertions.assertEquals(null,carDao.getCar(3232));
+    @BeforeAll
+    static void setUp() throws SQLException, LiquibaseException {
+        postgreSQLContainer.start();
+        String jdbcUrl = postgreSQLContainer.getJdbcUrl();
+        String username = postgreSQLContainer.getUsername();
+        String password = postgreSQLContainer.getPassword();
+        ConfigLoader configLoader = new ConfigLoader(jdbcUrl,password,username);
+        carDao = new CarDaoImpl(configLoader);
+        Connection connection = DriverManager.getConnection(jdbcUrl,username,password);
+        Database database = DatabaseFactory
+                .getInstance()
+                .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+        Liquibase liquibase = new Liquibase("database/changelog.xml",new ClassLoaderResourceAccessor(),database);
+        liquibase.update();
     }
 
-
-
     @Test
-    @DisplayName(" Добавление новой машины ")
-    public void saveCarTest_true(){
-        Car car = new Car("brand109","model103",1000,32,"GOOD");
-        carDao.addCar(car);
-        Assertions.assertEquals(car,carDao.getCar(car.getId()));
+    @DisplayName("Машина добавляется в базу данных")
+    void addCarTest(){
+        String brand = "TEST";
+        carDao.addCar(
+                new StandartCarBuilder()
+                .brand(brand)
+                .build()
+        );
+        Assertions.assertTrue(carDao.getAllCars().stream().anyMatch(x -> x.getBrand().equals(brand)));
     }
 
     @Test
-    @DisplayName(" Обновление информации о машине ")
-    public void updateCarTest_true(){
-        Car car = new Car("brand109","model103",1000,32,"GOOD");
-        carDao.addCar(car);
-        car.setPrice(3232.32);
+    @DisplayName("Машина удаляется из базы данных")
+    void deleteCarTest(){
+        int id = 1;
+        carDao.deleteCar(id);
+        Assertions.assertNull(carDao.getCar(id));
+    }
+
+    @Test
+    @DisplayName("Машина обновляется в базе данных")
+    void updateCarTest(){
+        int id = 2;
+        Car carFromDao = carDao.getCar(id);
+        Car car = new StandartCarBuilder()
+        .id(id)
+        .brand("UPDATE")
+        .price(200)
+        .model("UPDATE")
+        .build();
         carDao.updateCar(car);
-        Assertions.assertEquals(car,carDao.getCar(car.getId()));
+        Assertions.assertNotEquals(carFromDao,carDao.getCar(id));
     }
 
     @Test
-    @DisplayName(" Удаление информации о машине ")
-    public void deleteCarTest_true(){
-        Car car = new Car("brand109","model103",1000,32,"GOOD");
-        carDao.addCar(car);
-        carDao.deleteCar(car);
-        Assertions.assertEquals(null,carDao.getCar(car.getId()));
+    @DisplayName("Машина достается из базы данных")
+    void getCarTest(){
+        int id = 2;
+        Assertions.assertNotNull(carDao.getCar(2));
     }
-
 }

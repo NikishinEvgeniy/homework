@@ -4,9 +4,7 @@ import carshop_service.constant.OrderState;
 import carshop_service.constant.OrderType;
 import carshop_service.constant.UserRole;
 import carshop_service.constant.UserState;
-import carshop_service.entity.Car;
-import carshop_service.entity.Client;
-import carshop_service.entity.Order;
+import carshop_service.entity.*;
 import carshop_service.exception.IncorrectRoleException;
 import carshop_service.exception.IncorrectStateException;
 import carshop_service.exception.NoSuchCarException;
@@ -15,13 +13,12 @@ import carshop_service.in.Writer;
 import carshop_service.out.Viewer;
 import carshop_service.service.CarService;
 import carshop_service.service.ClientService;
-
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
 public class ConsoleEntityHandler implements EntityHandler{
 
-    public Client createClientByLoginPassword(Viewer consoleViewer, Writer consoleInfoWriter){
+    public Client createClientByLoginPassword(Viewer consoleViewer, Writer consoleInfoWriter) throws IncorrectRoleException {
         consoleViewer.showEnterLogin();
         String login = consoleInfoWriter.getLogin();
         consoleViewer.showEnterPassword();
@@ -31,9 +28,13 @@ public class ConsoleEntityHandler implements EntityHandler{
         String[] roles = UserRole.getAllRoles();
         boolean isTrueRole = Arrays.stream(roles).anyMatch(x -> x.equals(role));
         if(!isTrueRole) throw new IncorrectRoleException(); // Обработка исключения
-        return new Client(login,password,role);
+        return new StandartClientBuilder()
+                .login(login)
+                .password(password)
+                .role(role)
+                .build();
     }
-    public Client createFullClient(Viewer consoleViewer, Writer consoleInfoWriter){
+    public Client createFullClient(Viewer consoleViewer, Writer consoleInfoWriter) throws IncorrectRoleException {
         consoleViewer.showEnterName();
         String name = consoleInfoWriter.getName();
         consoleViewer.showEnterSurname();
@@ -47,9 +48,16 @@ public class ConsoleEntityHandler implements EntityHandler{
         String[] roles = UserRole.getAllRoles();
         boolean isTrueRole = Arrays.stream(roles).anyMatch(x -> x.equals(role));
         if(!isTrueRole) throw new IncorrectRoleException(); // Обработка исключения
-        return new Client(name,surname,login,password,role, UserState.BEGIN_STATE);
+        return new StandartClientBuilder()
+                .name(name)
+                .state(UserState.BEGIN_STATE)
+                .surname(surname)
+                .login(login)
+                .password(password)
+                .role(role)
+                .build();
     }
-    public void fillTheEmptyClientRegistration(Client client, Viewer consoleViewer, Writer consoleWriter){
+    public void fillTheEmptyClientRegistration(Client client, Viewer consoleViewer, Writer consoleWriter) throws IncorrectRoleException {
         consoleViewer.showEnterName();
         String name = consoleWriter.getName();
         consoleViewer.showEnterSurname();
@@ -69,7 +77,7 @@ public class ConsoleEntityHandler implements EntityHandler{
         client.setName(name);
         client.setSurname(surname);
     }
-    public void fillTheEmptyClientAuthorization(Client client, Viewer consoleViewer, Writer consoleWriter){
+    public void fillTheEmptyClientAuthorization(Client client, Viewer consoleViewer, Writer consoleWriter) throws IncorrectRoleException {
         consoleViewer.showEnterLogin();
         String login = consoleWriter.getLogin();
         consoleViewer.showEnterPassword();
@@ -83,7 +91,7 @@ public class ConsoleEntityHandler implements EntityHandler{
         client.setPassword(password);
         client.setRole(role);
     }
-    public Client updateClientDescription(Client oldClient, Viewer consoleViewer, Writer consoleWriter){
+    public Client updateClientDescription(Client oldClient, Viewer consoleViewer, Writer consoleWriter) throws IncorrectRoleException {
         fillTheEmptyClientRegistration(oldClient,consoleViewer,consoleWriter);
         return oldClient;
     }
@@ -98,10 +106,16 @@ public class ConsoleEntityHandler implements EntityHandler{
         String condition = consoleInfoWriter.getCondition();
         consoleViewer.showEnterCarYear();
         int yearOfRelease = consoleInfoWriter.getYearOfRelease();
-        return new Car(brand,model,price,yearOfRelease,condition);
+        return new StandartCarBuilder()
+                .brand(brand)
+                .model(model)
+                .price(price)
+                .yearOfRelease(yearOfRelease)
+                .condition(condition)
+                .build();
     }
     public Order createOrderByIdCarAndOther(Viewer consoleViewer, Writer consoleInfoWriter,
-                                             CarService carService, ClientService clientService){
+                                             CarService carService, ClientService clientService) throws NoSuchCarException, NoSuchClientException, IncorrectStateException {
         consoleViewer.showEnterCarId();
         int carId = consoleInfoWriter.getId();
         if(carService.getCar(carId) == null) throw new NoSuchCarException();
@@ -118,14 +132,20 @@ public class ConsoleEntityHandler implements EntityHandler{
         String[] types = OrderType.getAllStates();
         boolean isTrueType = Arrays.stream(types).anyMatch(x -> x.equals(type));
         if(!isTrueType) throw new IncorrectStateException(); // Ошибочка, отделить
-        return new Order(carId,clientId,condition,type, LocalDateTime.now());
+        return new StandartOrderBuilder()
+                .carId(carId)
+                .clientId(clientId)
+                .state(condition)
+                .type(type)
+                .dateTime(LocalDateTime.now())
+                .build();
     }
     public Car createUpdateCarByBrandModelAndOther(Car car, Viewer consoleViewer, Writer consoleInfoWriter){
         Car carUpdate = createCarByBrandModelAndOther(consoleViewer, consoleInfoWriter);
         carUpdate.setId(car.getId());
         return carUpdate;
     }
-    public Order createUpdateOrderStatus(Order order, Viewer consoleViewer, Writer consoleInfoWriter){
+    public Order createUpdateOrderStatus(Order order, Viewer consoleViewer, Writer consoleInfoWriter) throws IncorrectStateException {
         consoleViewer.showEnterCondition();
         String condition = consoleInfoWriter.getCondition();
         String[] conditions = OrderState.getAllStates();

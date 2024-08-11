@@ -1,8 +1,8 @@
 package carshop_service.dao;
 
 import carshop_service.application.ConfigLoader;
-import carshop_service.entity.Client;
-import carshop_service.entity.StandartClientBuilder;
+import carshop_service.entity.Order;
+import carshop_service.entity.StandartOrderBuilder;
 import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
@@ -18,16 +18,17 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Testcontainers
-public class ClientDaoTest {
-
+public class OrderDaoTest {
     @Container
     private static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:latest")
             .withDatabaseName("car_service")
             .withUsername("evgen")
             .withPassword("admin");
-    private static ClientDao clientDao;
+    private static OrderDao orderDao;
 
     @BeforeAll
     static void setUp() throws SQLException, LiquibaseException {
@@ -36,7 +37,7 @@ public class ClientDaoTest {
         String username = postgreSQLContainer.getUsername();
         String password = postgreSQLContainer.getPassword();
         ConfigLoader configLoader = new ConfigLoader(jdbcUrl,password,username);
-        clientDao = new ClientDaoImpl(configLoader);
+        orderDao = new OrderDaoImpl(configLoader);
         Database database = DatabaseFactory
                 .getInstance()
                 .findCorrectDatabaseImplementation(
@@ -47,50 +48,49 @@ public class ClientDaoTest {
     }
 
     @Test
-    @DisplayName("Клиент достается из базы данных")
-    void getClientTest(){
+    @DisplayName("Заказ достается из базы данных")
+    void getOrderTest(){
         int id = 2;
-        Assertions.assertNotNull(clientDao.getClient(id));
+        Assertions.assertNotNull(orderDao.getOrder(id));
     }
 
     @Test
-    @DisplayName("Клиент добавляется в базу данных")
-    void addClientTest(){
-        String name = "test";
-        Client client = new StandartClientBuilder()
-                .name(name)
-                .build();
-        clientDao.addClient(client);
-        Assertions.assertTrue(clientDao.getAllClients().stream().anyMatch(x -> x.getName().equals(name)));
-    }
-
-    @Test
-    @DisplayName("Клиент обновляется в базе данных")
-    void updateClientTest(){
+    @DisplayName("Заказ обновляется в базе данных")
+    void updateOrderTest(){
         int id = 2;
-        Client clientFromBd = clientDao.getClient(id);
-        String name = "update";
-        Client client = new StandartClientBuilder()
-                .id(id)
-                .name(name)
+        Order order = orderDao.getOrder(id);
+        Order build = new StandartOrderBuilder()
+                .dateTime(LocalDateTime.now())
+                .id(order.getId())
                 .build();
-        clientDao.updateClient(client);
-        Assertions.assertNotEquals(clientFromBd,clientDao.getClient(id));
+        orderDao.updateOrder(build);
+        Assertions.assertNotEquals(order,orderDao.getOrder(id));
     }
 
     @Test
-    @DisplayName("Клиент существует в базе данных ( поиск логину,паролю,роли )")
-    void clientIsExistTest(){
+    @DisplayName("Заказ удаляется из базы данных")
+    void getDeleteTest(){
         int id = 1;
-        String login = "admin";
-        String password = "admin";
-        String role = "admin";
-        Client client = new StandartClientBuilder()
-                .login(login)
-                .password(password)
-                .role(role)
-                .build();
-        Assertions.assertTrue(clientDao.isExist(client));
+        orderDao.deleteOrder(id);
+        Assertions.assertNull(orderDao.getOrder(id));
     }
 
+    @Test
+    @DisplayName("Список заказов достается из базы данных")
+    void getAllOrdersTest(){
+        List<Order> orders = orderDao.getAllOrders();
+        Assertions.assertFalse(orders.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Заказ добавляется в базу данных")
+    void addOrderTest(){
+        String type = "TEST";
+        Order order = new StandartOrderBuilder()
+                .dateTime(LocalDateTime.now())
+                .type(type)
+                .build();
+        orderDao.addOrder(order);
+        Assertions.assertTrue(orderDao.getAllOrders().stream().anyMatch(x -> x.getType().equals(type)));
+    }
 }

@@ -8,6 +8,6 @@ public interface CarService {
     List<Car> getAllCars();
     void addCar(Car car);
     Car getCar(int id);
-    void deleteCar(Car car);
+    void deleteCar(int id);
     void updateCar(Car car);
 }

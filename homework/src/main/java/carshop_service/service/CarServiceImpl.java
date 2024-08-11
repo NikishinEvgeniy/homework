@@ -1,17 +1,14 @@
 package carshop_service.service;
 
 import carshop_service.dao.CarDao;
-import carshop_service.dao.CarDaoImpl;
 import carshop_service.entity.Car;
-
+import lombok.AllArgsConstructor;
 import java.util.List;
 
+@AllArgsConstructor
 public class CarServiceImpl implements CarService {
-    private CarDao carDao;
 
-    public CarServiceImpl(){
-        this.carDao = new CarDaoImpl();
-    }
+    private CarDao carDao;
 
     @Override
     public List<Car> getAllCars() {
@@ -29,8 +26,8 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public void deleteCar(Car car) {
-        this.carDao.deleteCar(car);
+    public void deleteCar(int id) {
+        this.carDao.deleteCar(id);
     }
 
     @Override

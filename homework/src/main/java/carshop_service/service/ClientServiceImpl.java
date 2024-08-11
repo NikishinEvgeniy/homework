@@ -1,16 +1,15 @@
 package carshop_service.service;
 
 import carshop_service.dao.ClientDao;
-import carshop_service.dao.ClientDaoImpl;
 import carshop_service.entity.Client;
-
+import lombok.AllArgsConstructor;
 import java.util.List;
 
+
+@AllArgsConstructor
 public class ClientServiceImpl implements ClientService {
+
     private ClientDao dao;
-    public ClientServiceImpl(){
-        this.dao = new ClientDaoImpl();
-    }
 
     @Override
     public boolean isExist(Client client) {
