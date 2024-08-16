@@ -1,50 +1,34 @@
 package carshop_service.dao;
 
 import carshop_service.application.ConfigLoader;
+import carshop_service.application.DataBaseConfiguration;
+import carshop_service.constant.OrderState;
+import carshop_service.constant.OrderType;
+import carshop_service.container.PostgreContainer;
 import carshop_service.entity.Order;
-import carshop_service.entity.StandartOrderBuilder;
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Testcontainers
+
 public class OrderDaoTest {
-    @Container
-    private static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:latest")
-            .withDatabaseName("car_service")
-            .withUsername("evgen")
-            .withPassword("admin");
+    private static PostgreSQLContainer<?> postgreContainer;
     private static OrderDao orderDao;
 
     @BeforeAll
-    static void setUp() throws SQLException, LiquibaseException {
-        postgreSQLContainer.start();
-        String jdbcUrl = postgreSQLContainer.getJdbcUrl();
-        String username = postgreSQLContainer.getUsername();
-        String password = postgreSQLContainer.getPassword();
-        ConfigLoader configLoader = new ConfigLoader(jdbcUrl,password,username);
-        orderDao = new OrderDaoImpl(configLoader);
-        Database database = DatabaseFactory
-                .getInstance()
-                .findCorrectDatabaseImplementation(
-                        new JdbcConnection(DriverManager.getConnection(jdbcUrl,username,password))
-                );
-        Liquibase liquibase = new Liquibase("database/changelog.xml",new ClassLoaderResourceAccessor(),database);
-        liquibase.update();
+    public static void setUp() {
+        postgreContainer = new PostgreContainer().getPostgreSQLContainer();
+        String password = postgreContainer.getPassword();
+        String username = postgreContainer.getUsername();
+        DataBaseConfiguration dataBaseConfiguration = new DataBaseConfiguration(postgreContainer.getJdbcUrl()
+                ,username,password);
+        orderDao = new OrderDaoImpl(dataBaseConfiguration);
+    }
+
+    @AfterAll
+    public static void closeConnection(){
+        postgreContainer.close();
     }
 
     @Test
@@ -59,8 +43,10 @@ public class OrderDaoTest {
     void updateOrderTest(){
         int id = 2;
         Order order = orderDao.getOrder(id);
-        Order build = new StandartOrderBuilder()
+        Order build = Order.builder()
                 .dateTime(LocalDateTime.now())
+                .type(OrderType.PROCESSING)
+                .state(OrderState.UPDATE)
                 .id(order.getId())
                 .build();
         orderDao.updateOrder(build);
@@ -85,12 +71,13 @@ public class OrderDaoTest {
     @Test
     @DisplayName("Заказ добавляется в базу данных")
     void addOrderTest(){
-        String type = "TEST";
-        Order order = new StandartOrderBuilder()
+        Order order = Order.builder()
                 .dateTime(LocalDateTime.now())
-                .type(type)
+                .clientId(10)
+                .type(OrderType.SALE)
+                .state(OrderState.UPDATE)
                 .build();
         orderDao.addOrder(order);
-        Assertions.assertTrue(orderDao.getAllOrders().stream().anyMatch(x -> x.getType().equals(type)));
+        Assertions.assertTrue(orderDao.getAllOrders().stream().anyMatch(x -> x.getClientId() == 10));
     }
 }

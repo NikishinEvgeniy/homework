@@ -49,7 +49,7 @@
             <column name="password" value="admin"/>
             <column name="state" value="BEGIN_STATE"/>
             <column name="count_of_buy" valueNumeric="10"/>
-            <column name="role" value="admin"/>
+            <column name="role" value="ADMIN"/>
         </insert>
 
         <insert tableName="client" schemaName="private_schema">
@@ -59,7 +59,7 @@
             <column name="password" value="client"/>
             <column name="state" value="BEGIN_STATE"/>
             <column name="count_of_buy" valueNumeric="40"/>
-            <column name="role" value="client"/>
+            <column name="role" value="CLIENT"/>
         </insert>
 
         <insert tableName="log" schemaName="private_schema">

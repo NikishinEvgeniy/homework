@@ -1,12 +1,14 @@
 package carshop_service.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+
+/**
+ * Сущность car
+ */
 @Getter
 @Setter
+@Builder
 @EqualsAndHashCode
 @AllArgsConstructor
 public class Car {

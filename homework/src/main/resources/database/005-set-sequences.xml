@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+    <changeSet id="005-set-sequences" author="evgen">
+        <addDefaultValue tableName="car" columnName="id" defaultValueSequenceNext="car_sequence" schemaName="private_schema"/>
+        <addDefaultValue tableName="log" columnName="id" defaultValueSequenceNext="log_sequence" schemaName="private_schema"/>
+        <addDefaultValue tableName="client" columnName="id" defaultValueSequenceNext="client_sequence" schemaName="private_schema"/>
+        <addDefaultValue tableName="orders" columnName="id" defaultValueSequenceNext="order_sequence" schemaName="private_schema"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -3,14 +3,17 @@ package carshop_service.service;
 import carshop_service.dao.LogDao;
 import carshop_service.entity.Log;
 import lombok.AllArgsConstructor;
-
 import java.io.*;
 import java.util.List;
 
+/**
+ * Промежуточное звено между приложением и dao
+ * Обрабатывает ошибки, которые могут возникнуть при работе с log dao
+ */
 @AllArgsConstructor
 public class LogServiceImpl implements LogService {
 
-    private LogDao logDao;
+    private final LogDao logDao;
 
     @Override
     public void addLog(Log log) {

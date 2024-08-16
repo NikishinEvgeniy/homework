@@ -1,49 +1,32 @@
 package carshop_service.dao;
 
 import carshop_service.application.ConfigLoader;
+import carshop_service.application.DataBaseConfiguration;
+import carshop_service.constant.ClientRole;
+import carshop_service.constant.ClientState;
+import carshop_service.container.PostgreContainer;
 import carshop_service.entity.Client;
-import carshop_service.entity.StandartClientBuilder;
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
-@Testcontainers
 public class ClientDaoTest {
 
-    @Container
-    private static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:latest")
-            .withDatabaseName("car_service")
-            .withUsername("evgen")
-            .withPassword("admin");
+    private static PostgreSQLContainer<?> postgreContainer;
     private static ClientDao clientDao;
 
     @BeforeAll
-    static void setUp() throws SQLException, LiquibaseException {
-        postgreSQLContainer.start();
-        String jdbcUrl = postgreSQLContainer.getJdbcUrl();
-        String username = postgreSQLContainer.getUsername();
-        String password = postgreSQLContainer.getPassword();
-        ConfigLoader configLoader = new ConfigLoader(jdbcUrl,password,username);
-        clientDao = new ClientDaoImpl(configLoader);
-        Database database = DatabaseFactory
-                .getInstance()
-                .findCorrectDatabaseImplementation(
-                        new JdbcConnection(DriverManager.getConnection(jdbcUrl,username,password))
-                );
-        Liquibase liquibase = new Liquibase("database/changelog.xml",new ClassLoaderResourceAccessor(),database);
-        liquibase.update();
+    public static void setUp() {
+        postgreContainer = new PostgreContainer().getPostgreSQLContainer();
+        String password = postgreContainer.getPassword();
+        String username = postgreContainer.getUsername();
+        DataBaseConfiguration dataBaseConfiguration = new DataBaseConfiguration(postgreContainer.getJdbcUrl()
+                ,username,password);
+        clientDao = new ClientDaoImpl(dataBaseConfiguration);
+    }
+
+    @AfterAll
+    public static void closeConnection(){
+        postgreContainer.close();
     }
 
     @Test
@@ -57,7 +40,9 @@ public class ClientDaoTest {
     @DisplayName("Клиент добавляется в базу данных")
     void addClientTest(){
         String name = "test";
-        Client client = new StandartClientBuilder()
+        Client client = Client.builder()
+                .state(ClientState.CLIENT_FILTER_STATE)
+                .role(ClientRole.ADMIN)
                 .name(name)
                 .build();
         clientDao.addClient(client);
@@ -70,8 +55,10 @@ public class ClientDaoTest {
         int id = 2;
         Client clientFromBd = clientDao.getClient(id);
         String name = "update";
-        Client client = new StandartClientBuilder()
+        Client client = Client.builder()
                 .id(id)
+                .role(ClientRole.CLIENT)
+                .state(ClientState.CLIENT_FILTER_STATE)
                 .name(name)
                 .build();
         clientDao.updateClient(client);
@@ -84,11 +71,10 @@ public class ClientDaoTest {
         int id = 1;
         String login = "admin";
         String password = "admin";
-        String role = "admin";
-        Client client = new StandartClientBuilder()
+        Client client = Client.builder()
                 .login(login)
                 .password(password)
-                .role(role)
+                .role(ClientRole.ADMIN)
                 .build();
         Assertions.assertTrue(clientDao.isExist(client));
     }

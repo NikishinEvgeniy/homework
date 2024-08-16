@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+    <changeSet id="004-create-sequences" author="evgen">
+        <createSequence sequenceName="car_sequence" schemaName="private_schema"
+                        startValue="1"
+                        incrementBy="1"
+                        minValue="1"
+                        maxValue="9999999"
+                        cacheSize="1"
+        />
+        <createSequence sequenceName="client_sequence" schemaName="private_schema"
+                        startValue="1"
+                        incrementBy="1"
+                        minValue="1"
+                        maxValue="9999999"
+                        cacheSize="1"
+        />
+        <createSequence sequenceName="order_sequence" schemaName="private_schema"
+                        startValue="1"
+                        incrementBy="1"
+                        minValue="1"
+                        maxValue="9999999"
+                        cacheSize="1"
+        />
+        <createSequence sequenceName="log_sequence" schemaName="private_schema"
+                        startValue="1"
+                        incrementBy="1"
+                        minValue="1"
+                        maxValue="9999999"
+                        cacheSize="1"
+        />
+    </changeSet>
+
+</databaseChangeLog>

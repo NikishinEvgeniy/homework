@@ -13,19 +13,28 @@ import carshop_service.service.LogServiceImpl;
 import carshop_service.service.OrderServiceImpl;
 import java.util.Scanner;
 
+/**
+ * Контекст приложения, там, где собирается все приложение.
+ */
 public class ApplicationContext {
 
     public void initialize(){
         ConfigLoader configLoader = new ConfigLoader("application.properties");
+        DataBaseConfiguration dataBaseConfiguration = new DataBaseConfiguration(
+                configLoader.getProperty("car_service.url"),
+                configLoader.getProperty("car_service.username"),
+                configLoader.getProperty("car_service.password")
+        );
         ApplicationFacade applicationFacade =
                 new ApplicationFacade(
-                        new LogServiceImpl(new LogDaoImpl(configLoader)),
-                        new OrderServiceImpl(new OrderDaoImpl(configLoader)),
-                        new CarServiceImpl(new CarDaoImpl(configLoader)),
-                        new ClientServiceImpl(new ClientDaoImpl(configLoader)),
+                        new LogServiceImpl(new LogDaoImpl(dataBaseConfiguration)),
+                        new OrderServiceImpl(new OrderDaoImpl(dataBaseConfiguration)),
+                        new CarServiceImpl(new CarDaoImpl(dataBaseConfiguration)),
+                        new ClientServiceImpl(new ClientDaoImpl(dataBaseConfiguration)),
                         new ConsoleViewer(),
                         new ConsoleInfoWriter(new Scanner(System.in)),
-                        new ConsoleEntityHandler());
+                        new ConsoleEntityHandler()
+                );
         applicationFacade.initialize();
     }
 }

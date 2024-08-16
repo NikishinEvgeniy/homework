@@ -9,8 +9,10 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
         http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
 
-    <include file="003-create-private-schema.xml" relativeToChangelogFile="true" />
+    <include file="003-create-schemas.xml" relativeToChangelogFile="true" />
+    <include file="004-create-sequences.xml" relativeToChangelogFile="true" />
     <include file="001-create-table.xml" relativeToChangelogFile="true" />
+    <include file="005-set-sequences.xml" relativeToChangelogFile="true" />
     <include file="002-insert-value.xml" relativeToChangelogFile="true" />
 
 </databaseChangeLog>

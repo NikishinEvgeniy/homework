@@ -145,5 +145,4 @@ public class ConsoleViewer implements Viewer{
     public void showFilterMenu(){
         System.out.println(ViewConstant.OUTPUT_FILTER_MENU_CHOOSE);
     }
-
 }

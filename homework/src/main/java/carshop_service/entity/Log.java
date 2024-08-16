@@ -1,13 +1,16 @@
 package carshop_service.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import carshop_service.constant.LogAction;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
+/**
+ * Сущность log
+ */
 @Getter
 @Setter
+@Builder
 @EqualsAndHashCode
 @AllArgsConstructor
 public class Log {
@@ -15,7 +18,7 @@ public class Log {
     private int id;
     private LocalDateTime dateTime;
     private int clientId;
-    private String action;
+    private LogAction action;
 
     @Override
     public String toString() {

@@ -9,41 +9,40 @@ import carshop_service.in.Writer;
 import carshop_service.out.Viewer;
 import carshop_service.service.*;
 import lombok.AllArgsConstructor;
-
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import static carshop_service.constant.UserRole.*;
-import static carshop_service.constant.UserState.*;
+
+import static carshop_service.constant.ClientState.*;
 
 @AllArgsConstructor
 public class ApplicationFacade {
 
-    private LogService logService;
-    private OrderService orderService;
-    private CarService carService;
-    private ClientService clientService;
-    private Viewer consoleViewer;
-    private Writer consoleInfoWriter;
-    private EntityHandler consoleEntityHandler;
+    private final LogService logService;
+    private final OrderService orderService;
+    private final CarService carService;
+    private final ClientService clientService;
+    private final Viewer consoleViewer;
+    private final Writer consoleInfoWriter;
+    private final EntityHandler consoleEntityHandler;
 
     /**
      * В постоянном режиме проверяет состояние пользователя.
      * Все состояния можно увидеть в пакете constant
      */
  public void initialize(){
-        Client user = new StandartClientBuilder()
+        Client user = Client.builder()
                 .state(BEGIN_STATE)
                 .build();
         while (true){
             try {
                 checkState(user);
-            } catch (DuplicateClientException | NoSuchOrderException | NoSuchCarException | NoSuchChooseException |
-                     ClientIsExistException | NoSuchClientException | IncorrectRoleException | IncorrectStateException |
-                     IOException e) {
+            } catch (NoSuchEntityException | NoSuchChooseException |
+                     ClientIsExistException | IncorrectRoleException | IncorrectStateException |
+                     IOException | DataBaseEmptyException | DuplicateEntityException |
+                     IncorrectTypeException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -60,19 +59,16 @@ public class ApplicationFacade {
      * При нахождении пользователя, его контактная информация копируется в ранее созданный объект.
      * Идея приложения - проверка состояний пользователя и последующее их изменение при выборе определенного пункта
      * @throws IOException
-     * @throws DuplicateClientException
-     * @throws NoSuchOrderException
-     * @throws NoSuchCarException
+     * @throws NoSuchEntityException
      * @throws NoSuchChooseException
      * @throws ClientIsExistException
-     * @throws NoSuchClientException
      * @throws IncorrectRoleException
      * @throws IncorrectStateException
      *
      */
-    public void checkState(Client user) throws IOException, DuplicateClientException,
-            NoSuchOrderException, NoSuchCarException, NoSuchChooseException,
-            ClientIsExistException, NoSuchClientException, IncorrectRoleException, IncorrectStateException {
+    public void checkState(Client user) throws IOException,
+            NoSuchEntityException, NoSuchChooseException,
+            ClientIsExistException, IncorrectRoleException, IncorrectStateException, DataBaseEmptyException, DuplicateEntityException, IncorrectTypeException {
         int choose,id;
         switch (user.getState()){
 
@@ -91,33 +87,22 @@ public class ApplicationFacade {
                 }
                 break;
 
-            case REGISTRATION_STATE:
+            case REGISTRATION_STATE: // *
                 consoleViewer.showRegistrationTitle();
                 consoleEntityHandler.fillTheEmptyClientRegistration(user,consoleViewer,consoleInfoWriter);
                 saveClientAfterRegistration(user);
                 user.setState(AUTHORIZATION_STATE);
-                logService.addLog(
-                        new StandartLogBuilder()
-                        .clientId(user.getId())
-                        .action(LogAction.REGISTRATION_ACTION)
-                        .dateTime(LocalDateTime.now())
-                        .build()
-                );
+                logService.addLog( consoleEntityHandler.createLog(LogAction.REGISTRATION_ACTION, user.getId()));
                 break;
 
-            case AUTHORIZATION_STATE:
+            case AUTHORIZATION_STATE: // *
                 consoleViewer.showAuthorizationTitle();
                 Client tempUser = consoleEntityHandler.createClientByLoginPassword(consoleViewer,consoleInfoWriter);
                 Client client = getClientAfterAuthorization(tempUser);
                 fillTheAuthorizationUserByClient(user,client);
                 user.setState(CHOOSE_MAIN_MENU_STATE);
-                logService.addLog(
-                        new StandartLogBuilder()
-                        .clientId(user.getId())
-                        .action(LogAction.AUTHORIZATION_ACTION)
-                        .dateTime(LocalDateTime.now())
-                        .build()
-                );
+                logService.addLog( consoleEntityHandler.createLog(LogAction.AUTHORIZATION_ACTION, user.getId()));
+
                 break;
 
             case CHOOSE_MAIN_MENU_STATE:
@@ -146,7 +131,7 @@ public class ApplicationFacade {
                 user.setState(MENU_CHOOSE_STATE);
                 break;
 
-            case MENU_CHOOSE_STATE:
+            case MENU_CHOOSE_STATE: // *
                 consoleViewer.showEnterChoose();
                 choose = consoleInfoWriter.getChoose();
                 if(!checkChoose(choose,user)) throw new NoSuchChooseException();
@@ -173,40 +158,24 @@ public class ApplicationFacade {
                         consoleViewer.showEnterId();
                         id = consoleInfoWriter.getId();
                         Car carUpOld = carService.getCar(id);
-                        if(carUpOld != null) {
-                            consoleViewer.showSimpleCar(carUpOld);
-                            consoleViewer.showUpdateTitle();
-                            Car carUpNew = consoleEntityHandler.createUpdateCarByBrandModelAndOther(carUpOld,consoleViewer,consoleInfoWriter);
-                            carService.updateCar(carUpNew);
-                            consoleViewer.showSuccessTitle();
-                            user.setState(CHOOSE_MAIN_MENU_STATE);
-                            logService.addLog(
-                                    new StandartLogBuilder()
-                                            .clientId(user.getId())
-                                            .action(LogAction.UPDATE_CAR_ACTION)
-                                            .dateTime(LocalDateTime.now())
-                                            .build()
-                            );
-                        }
-                        else throw new NoSuchCarException();
+                        consoleViewer.showSimpleCar(carUpOld);
+                        consoleViewer.showUpdateTitle();
+                        Car carUpNew = consoleEntityHandler
+                                .createUpdateCarByBrandModelAndOther(carUpOld,consoleViewer,consoleInfoWriter);
+                        carService.updateCar(carUpNew);
+                        consoleViewer.showSuccessTitle();
+                        user.setState(CHOOSE_MAIN_MENU_STATE);
+                        logService.addLog( consoleEntityHandler.createLog(LogAction.UPDATE_CAR_ACTION, user.getId()));
+
                         break;
                     case 4:
                         consoleViewer.showEnterId();
-                        id = consoleInfoWriter.getId(); // Ошибка с водом обработать
-                        Car carFromDb = carService.getCar(id);
-                        if(carFromDb != null) {
-                            carService.deleteCar(id);
-                            consoleViewer.showSuccessTitle();
-                            user.setState(CHOOSE_MAIN_MENU_STATE);
-                            logService.addLog(
-                                    new StandartLogBuilder()
-                                            .clientId(user.getId())
-                                            .action(LogAction.DELETE_CAR_ACTION)
-                                            .dateTime(LocalDateTime.now())
-                                            .build()
-                            );
-                        }
-                        else throw new NoSuchCarException();
+                        id = consoleInfoWriter.getId();
+                        carService.deleteCar(id);
+                        consoleViewer.showSuccessTitle();
+                        user.setState(CHOOSE_MAIN_MENU_STATE);
+                        logService.addLog( consoleEntityHandler.createLog(LogAction.DELETE_CAR_ACTION, user.getId()));
+
                         break;
                     case 5:
                         consoleViewer.showCreateOrderTitle();
@@ -220,76 +189,43 @@ public class ApplicationFacade {
                             client.setCountOfBuy(client.getCountOfBuy() + 1);
                         }
                         user.setState(CHOOSE_MAIN_MENU_STATE);
-                        logService.addLog(
-                                new StandartLogBuilder()
-                                        .clientId(user.getId())
-                                        .action(LogAction.ADD_ORDER_ACTION)
-                                        .dateTime(LocalDateTime.now())
-                                        .build()
-                        );
+                        logService.addLog( consoleEntityHandler.createLog(LogAction.ADD_ORDER_ACTION, user.getId()));
                         break;
                     case 6:
                         Car carAdd = consoleEntityHandler.createCarByBrandModelAndOther(consoleViewer,consoleInfoWriter);
                         carService.addCar(carAdd);
                         consoleViewer.showSuccessTitle();
                         user.setState(CHOOSE_MAIN_MENU_STATE);
-                        logService.addLog(
-                                new StandartLogBuilder()
-                                .clientId(user.getId())
-                                .action(LogAction.ADD_CAR_ACTION)
-                                .dateTime(LocalDateTime.now())
-                                .build()
-                        );
+                        logService.addLog( consoleEntityHandler.createLog(LogAction.ADD_CAR_ACTION, user.getId()));
                         break;
                     case 7:
                         consoleViewer.showEnterId();
-                        id = consoleInfoWriter.getId(); // Ошибка с водом обработать
+                        id = consoleInfoWriter.getId();
                         Order orderFromDb = orderService.getOrder(id);
-                        if(orderFromDb != null) {
-                            consoleViewer.showSimpleOrder(orderFromDb);
-                            consoleViewer.showSuccessTitle();
-                            user.setState(CHOOSE_MAIN_MENU_STATE);
-                        }
-                        else throw new NoSuchOrderException();
+                        consoleViewer.showSimpleOrder(orderFromDb);
+                        consoleViewer.showSuccessTitle();
+                        user.setState(CHOOSE_MAIN_MENU_STATE);
                         break;
                     case 8:
                         consoleViewer.showEnterId();
-                        id = consoleInfoWriter.getId(); // Ошибка с водом обработать
+                        id = consoleInfoWriter.getId();
                         Order orderUpOld = orderService.getOrder(id);
-                        if(orderUpOld != null) {
-                            consoleViewer.showSimpleOrder(orderUpOld);
-                            consoleViewer.showUpdateTitle();
-                            Order orderUpNew = consoleEntityHandler.createUpdateOrderStatus(orderUpOld,consoleViewer,consoleInfoWriter);
-                            orderService.updateOrder(orderUpNew);
-                            consoleViewer.showSuccessTitle();
-                            user.setState(CHOOSE_MAIN_MENU_STATE);
-                            logService.addLog(
-                                    new StandartLogBuilder()
-                                            .clientId(user.getId())
-                                            .action(LogAction.UPDATE_ORDER_ACTION)
-                                            .dateTime(LocalDateTime.now())
-                                            .build()
-                            );
-                        }
-                        else throw new NoSuchCarException();
+                        consoleViewer.showSimpleOrder(orderUpOld);
+                        consoleViewer.showUpdateTitle();
+                        Order orderUpNew = consoleEntityHandler
+                                .createUpdateOrderStatus(orderUpOld,consoleViewer,consoleInfoWriter);
+                        orderService.updateOrder(orderUpNew);
+                        consoleViewer.showSuccessTitle();
+                        user.setState(CHOOSE_MAIN_MENU_STATE);
+                        logService.addLog( consoleEntityHandler.createLog(LogAction.UPDATE_ORDER_ACTION, user.getId()));
                         break;
                     case 9:
                         consoleViewer.showEnterId();
-                        id = consoleInfoWriter.getId(); // Ошибка с водом обработать
-                        Order orderFromBd = orderService.getOrder(id);
-                        if(orderFromBd != null) {
-                            orderService.deleteOrder(id);
-                            consoleViewer.showSuccessTitle();
-                            user.setState(CHOOSE_MAIN_MENU_STATE);
-                            logService.addLog(
-                                    new StandartLogBuilder()
-                                            .clientId(user.getId())
-                                            .action(LogAction.CANCEL_ORDER_ACTION)
-                                            .dateTime(LocalDateTime.now())
-                                            .build()
-                            );
-                        }
-                        else throw new NoSuchCarException();
+                        id = consoleInfoWriter.getId();
+                        orderService.deleteOrder(id);
+                        consoleViewer.showSuccessTitle();
+                        user.setState(CHOOSE_MAIN_MENU_STATE);
+                        logService.addLog( consoleEntityHandler.createLog(LogAction.CANCEL_ORDER_ACTION, user.getId()));
                         break;
                     case 10:
                         List<Client> clients = clientService.getAllClients();
@@ -302,37 +238,24 @@ public class ApplicationFacade {
                         break;
                     case 11:
                         consoleViewer.showEnterId();
-                        id = consoleInfoWriter.getId(); // Ошибка с водом обработать
+                        id = consoleInfoWriter.getId();
                         client = clientService.getClient(id);
-                        if(client != null) {
-                            consoleViewer.showSimpleClient(client);
-                            consoleViewer.showUpdateTitle();
-                            consoleEntityHandler.updateClientDescription(client,consoleViewer,consoleInfoWriter) ;
-                            clientService.updateClient(client);
-                            consoleViewer.showSuccessTitle();
-                            user.setState(CHOOSE_MAIN_MENU_STATE);
-                            logService.addLog(
-                                    new StandartLogBuilder()
-                                            .clientId(user.getId())
-                                            .action(LogAction.UPDATE_CLIENT_ACTION)
-                                            .dateTime(LocalDateTime.now())
-                                            .build()
-                            );
-                        }
-                        else throw new NoSuchCarException();
+                        consoleViewer.showSimpleClient(client);
+                        consoleViewer.showUpdateTitle();
+                        consoleEntityHandler
+                                .updateClientDescription(client,consoleViewer,consoleInfoWriter) ;
+                        clientService.updateClient(client);
+                        consoleViewer.showSuccessTitle();
+                        user.setState(CHOOSE_MAIN_MENU_STATE);
+                        logService.addLog( consoleEntityHandler.createLog(LogAction.UPDATE_CLIENT_ACTION, user.getId()));
                         break;
                     case 12:
                         Client client1 = consoleEntityHandler.createFullClient(consoleViewer,consoleInfoWriter);
-                        if(clientService.isExist(client1)) throw new DuplicateClientException();
+                        clientService.isExist(client1);
                         clientService.addClient(client1);
                         consoleViewer.showSuccessTitle();
                         user.setState(CHOOSE_MAIN_MENU_STATE);
-                        logService.addLog(
-                                new StandartLogBuilder()
-                                        .clientId(user.getId())
-                                        .action(LogAction.ADD_CLIENT_ACTION)
-                                        .build()
-                        );
+                        logService.addLog( consoleEntityHandler.createLog(LogAction.ADD_CLIENT_ACTION, user.getId()));
                         break;
                     case 13:
                         List<Log> logs = logService.getAllLogs();
@@ -388,7 +311,7 @@ public class ApplicationFacade {
                 }
                 break;
 
-            case MAGAZINE_FILTER_STATE:
+            case MAGAZINE_FILTER_STATE: // *
                 consoleViewer.showAvaibleFiltersTitle();
                 consoleViewer.showLogsOutputVariableMenu();
                 consoleViewer.showEnterChoose();
@@ -430,7 +353,7 @@ public class ApplicationFacade {
                         consoleViewer.showEnterAction();
                         String action = consoleInfoWriter.getAction();
                         logs = new ArrayList<>(logService.getAllLogs());
-                        logs = logs.stream().filter(x -> x.getAction().equals(action)).collect(Collectors.toList());
+                        logs = logs.stream().filter(x -> x.getAction().toString().equals(action)).collect(Collectors.toList());
                         consoleViewer.showMagazineTitle();
                         consoleViewer.showAllLogsPage(logs);
                         consoleViewer.showSuccessTitle();
@@ -441,7 +364,7 @@ public class ApplicationFacade {
                 break;
 
 
-            case ORDER_FILTER_STATE:
+            case ORDER_FILTER_STATE: // *
                 consoleViewer.showAvaibleFiltersTitle();
                 consoleViewer.showOrderOutputVariableMenu();
                 consoleViewer.showEnterChoose();
@@ -475,7 +398,7 @@ public class ApplicationFacade {
                         consoleViewer.showEnterOrderType();
                         String type = consoleInfoWriter.getOrderType();
                         orders = new ArrayList<>(orderService.getAllOrders());
-                        orders = orders.stream().filter(x -> x.getType().equals(type)).collect(Collectors.toList());
+                        orders = orders.stream().filter(x -> x.getType().toString().equals(type)).collect(Collectors.toList());
                         consoleViewer.showAvaibleOrdersTitle();
                         consoleViewer.showAllOrdersPage(orders);
                         consoleViewer.showSuccessTitle();
@@ -504,7 +427,7 @@ public class ApplicationFacade {
                 }
                 break;
 
-            case CAR_FILTER_STATE:
+            case CAR_FILTER_STATE: // *
                 consoleViewer.showAvaibleFiltersTitle();
                 consoleViewer.showCarOutputVariableMenu();
                 consoleViewer.showEnterChoose();
@@ -558,7 +481,8 @@ public class ApplicationFacade {
                     default: throw new NoSuchChooseException();
                 }
                 break;
-            case CLIENT_SORT_STATE:
+
+            case CLIENT_SORT_STATE: // *
                 consoleViewer.showAvaibleSortsTitle();
                 consoleViewer.showClientOutputVariableMenu();
                 consoleViewer.showEnterChoose();
@@ -592,7 +516,8 @@ public class ApplicationFacade {
                     default: throw new NoSuchChooseException();
                 }
                 break;
-            case CLIENT_FILTER_STATE:
+
+            case CLIENT_FILTER_STATE: // *
                 consoleViewer.showAvaibleFiltersTitle();
                 consoleViewer.showClientOutputVariableMenu();
                 consoleViewer.showEnterChoose();
@@ -645,12 +570,11 @@ public class ApplicationFacade {
      * при правильном доступе, false, при выборе недоступного меню
      */
     public boolean checkChoose(int choose, Client user){
-        switch (user.getRole()){
-            case ADMIN: return choose <= 14;
-            case MANAGER: return choose <= 9;
-            case CLIENT: return choose <= 2;
-        }
-        return false;
+        return switch (user.getRole()) {
+            case ADMIN -> choose <= 14;
+            case MANAGER -> choose <= 9;
+            case CLIENT -> choose <= 2;
+        };
     }
 
     /**
@@ -658,9 +582,9 @@ public class ApplicationFacade {
      * он заполняется и заносится в БД. Если такой пользователь уже существует, то выводится ошибка
      * @param user
      */
-    public void saveClientAfterRegistration(Client user) throws ClientIsExistException {
-        if(!clientService.isExist(user)) clientService.addClient(user);
-        else throw new ClientIsExistException();
+    public void saveClientAfterRegistration(Client user) throws NoSuchEntityException, DuplicateEntityException {
+        clientService.isExist(user);
+        clientService.addClient(user);
     }
 
     /**
@@ -671,13 +595,11 @@ public class ApplicationFacade {
      * @param tempUser
      * @return
      */
-    public Client getClientAfterAuthorization(Client tempUser) throws NoSuchClientException {
-        if(clientService.isExist(tempUser)) {
+    public Client getClientAfterAuthorization(Client tempUser) throws NoSuchEntityException, DataBaseEmptyException {
+            clientService.isExist(tempUser);
             List<Client> tempClient = clientService.getAllClients();
             Client client = tempClient.stream().filter(x -> x.equals(tempUser)).toList().getFirst();
             return client;
-        }
-        else throw new NoSuchClientException();
     }
 
     /**

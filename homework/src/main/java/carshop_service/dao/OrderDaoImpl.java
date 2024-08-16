@@ -1,32 +1,38 @@
 package carshop_service.dao;
 
-import carshop_service.application.ConfigLoader;
+import carshop_service.application.DataBaseConfiguration;
+import carshop_service.constant.OrderState;
+import carshop_service.constant.OrderType;
+import carshop_service.constant.SqlQuery;
 import carshop_service.entity.Order;
-import carshop_service.entity.StandartOrderBuilder;
 import lombok.AllArgsConstructor;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
+
+/**
+ * Имплементация интерфейса, DAO - data accept object, класс общающийся с базой данных orders
+ */
+
 @AllArgsConstructor
 public class OrderDaoImpl implements OrderDao {
 
-    private ConfigLoader configLoader;
+    private final DataBaseConfiguration database;
 
     @Override
     public void addOrder(Order order){
-        Connection connection = configLoader.getConnection();
+        Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
-            configLoader.setSchema(connection.createStatement());
-            String addOrderQuery = "INSERT INTO orders (client_id,car_id,state,type,date_time) " +
-                    " VALUES(?,?,?,?,?)";
-            preparedStatement = connection.prepareStatement(addOrderQuery);
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            preparedStatement = connection.prepareStatement(SqlQuery.ADD_ORDER_QUERY);
             preparedStatement.setInt(1,order.getClientId());
             preparedStatement.setInt(2,order.getCarId());
-            preparedStatement.setString(3,order.getState());
-            preparedStatement.setString(4,order.getType());
+            preparedStatement.setString(3,order.getState().toString());
+            preparedStatement.setString(4,order.getType().toString());
             preparedStatement.setString(5,order.getDateTime().toString());
             preparedStatement.executeUpdate();
         }
@@ -35,7 +41,7 @@ public class OrderDaoImpl implements OrderDao {
         }
         finally {
             try {
-                connection.close();
+                if(connection != null) connection.close();
                 if(preparedStatement != null) preparedStatement.close();
             }
             catch (SQLException e) {
@@ -46,22 +52,23 @@ public class OrderDaoImpl implements OrderDao {
 
     @Override
     public List<Order> getAllOrders() {
-        Connection connection = configLoader.getConnection();
-        List<Order> orders = new LinkedList<>();
+        ResultSet resultSet = null;
         Statement statement = null;
+        Connection connection = null;
+        List<Order> orders = new LinkedList<>();
         try {
-            configLoader.setSchema(connection.createStatement());
-            String getOrdersQuery = "SELECT * FROM orders";
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
             statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(getOrdersQuery);
+            resultSet = statement.executeQuery(SqlQuery.GET_ORDERS_QUERY);
             while (resultSet.next()){
                 orders.add(
-                        new StandartOrderBuilder()
+                                Order.builder()
                                 .id(resultSet.getInt("id"))
                                 .clientId(resultSet.getInt("client_id"))
                                 .carId(resultSet.getInt("car_id"))
-                                .state(resultSet.getString("state"))
-                                .type(resultSet.getString("type"))
+                                .state(OrderState.valueOf(resultSet.getString("state")))
+                                .type(OrderType.valueOf(resultSet.getString("type")))
                                 .dateTime(LocalDateTime.parse(resultSet.getString("date_time")))
                                 .build()
                 );
@@ -72,8 +79,9 @@ public class OrderDaoImpl implements OrderDao {
         }
         finally {
             try {
-                connection.close();
+                if(connection != null) connection.close();
                 if(statement != null) statement.close();
+                if(resultSet != null) resultSet.close();
             }
             catch (SQLException e) {
                 System.out.println(e.getMessage());
@@ -84,32 +92,35 @@ public class OrderDaoImpl implements OrderDao {
 
     @Override
     public Order getOrder(int id) {
-        Connection connection = configLoader.getConnection();
-        PreparedStatement preparedStatement = null;
         Order order = null;
+        ResultSet resultSet = null;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
         try {
-            configLoader.setSchema(connection.createStatement());
-            String getOrderQuery = "SELECT * FROM orders WHERE id = ?";
-            preparedStatement = connection.prepareStatement(getOrderQuery);
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            preparedStatement = connection.prepareStatement(SqlQuery.GET_ORDER_QUERY);
             preparedStatement.setInt(1,id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            order = new StandartOrderBuilder()
-                    .id(resultSet.getInt("id"))
-                    .carId(resultSet.getInt("car_id"))
-                    .clientId(resultSet.getInt("client_id"))
-                    .state(resultSet.getString("state"))
-                    .type(resultSet.getString("type"))
-                    .dateTime(LocalDateTime.parse(resultSet.getString("date_time")))
-                    .build();
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                order = Order.builder()
+                        .id(resultSet.getInt("id"))
+                        .carId(resultSet.getInt("car_id"))
+                        .clientId(resultSet.getInt("client_id"))
+                        .state(OrderState.valueOf(resultSet.getString("state")))
+                        .type(OrderType.valueOf(resultSet.getString("type")))
+                        .dateTime(LocalDateTime.parse(resultSet.getString("date_time")))
+                        .build();
+            }
         }
         catch (SQLException e){
             System.out.println(e.getMessage());
         }
         finally {
             try {
-                connection.close();
+                if(connection != null) connection.close();
                 if(preparedStatement != null) preparedStatement.close();
+                if(resultSet != null) resultSet.close();
             }
             catch (SQLException e) {
                 System.out.println(e.getMessage());
@@ -120,18 +131,16 @@ public class OrderDaoImpl implements OrderDao {
 
     @Override
     public void updateOrder(Order order) {
-        Connection connection = configLoader.getConnection();
+        Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
-            configLoader.setSchema(connection.createStatement());
-            String updateOrderQuery = "UPDATE orders " +
-                    " SET client_id = ?, car_id = ?,state = ?, type = ?, date_time = ? " +
-                    " WHERE id = ?";
-            preparedStatement = connection.prepareStatement(updateOrderQuery);
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            preparedStatement = connection.prepareStatement(SqlQuery.UPDATE_ORDER_QUERY);
             preparedStatement.setInt(1,order.getClientId());
             preparedStatement.setInt(2,order.getCarId());
-            preparedStatement.setString(3,order.getState());
-            preparedStatement.setString(4,order.getType());
+            preparedStatement.setString(3,order.getState().toString());
+            preparedStatement.setString(4,order.getType().toString());
             preparedStatement.setString(5,order.getDateTime().toString());
             preparedStatement.setInt(6,order.getId());
             preparedStatement.executeUpdate();
@@ -141,7 +150,7 @@ public class OrderDaoImpl implements OrderDao {
         }
         finally {
             try {
-                connection.close();
+                if(connection != null) connection.close();
                 if(preparedStatement != null) preparedStatement.close();
             }
             catch (SQLException e) {
@@ -152,12 +161,12 @@ public class OrderDaoImpl implements OrderDao {
 
     @Override
     public void deleteOrder(int id) {
-        Connection connection = configLoader.getConnection();
+        Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
-            configLoader.setSchema(connection.createStatement());
-            String getOrderQuery = "DELETE FROM orders WHERE id = ?";
-            preparedStatement = connection.prepareStatement(getOrderQuery);
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            preparedStatement = connection.prepareStatement(SqlQuery.DELETE_ORDER_QUERY);
             preparedStatement.setInt(1,id);
             preparedStatement.executeUpdate();
         }
@@ -166,7 +175,7 @@ public class OrderDaoImpl implements OrderDao {
         }
         finally {
             try {
-                connection.close();
+                if(connection != null) connection.close();
                 if(preparedStatement != null) preparedStatement.close();
             }
             catch (SQLException e) {

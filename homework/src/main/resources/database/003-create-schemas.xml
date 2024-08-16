@@ -9,7 +9,7 @@ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
         http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
 
-    <changeSet id="003-create-private-schema" author="your_name">
+    <changeSet id="003-create-private-schema" author="evgen">
         <sql>CREATE SCHEMA private_schema AUTHORIZATION evgen;</sql>
         <sql>ALTER SCHEMA private_schema OWNER TO evgen;</sql>
     </changeSet>

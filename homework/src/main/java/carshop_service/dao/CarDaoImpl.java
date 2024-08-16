@@ -1,32 +1,37 @@
 package carshop_service.dao;
 
-import carshop_service.application.ConfigLoader;
+import carshop_service.application.DataBaseConfiguration;
+import carshop_service.constant.SqlQuery;
 import carshop_service.entity.Car;
-import carshop_service.entity.StandartCarBuilder;
 import lombok.AllArgsConstructor;
 
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Имплементация интерфейса, DAO - data accept object, класс общающийся с базой данных car
+ */
+
 @AllArgsConstructor
 public class CarDaoImpl implements CarDao {
 
-    private ConfigLoader configLoader;
+    private final DataBaseConfiguration database;
 
     @Override
     public List<Car> getAllCars() {
-        Connection connection = configLoader.getConnection();
-        List<Car> cars = new LinkedList<>();
+        Connection connection = null;
         PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        List<Car> cars = new LinkedList<>();
         try {
-            configLoader.setSchema(connection.createStatement());
-            String getClientsQuery = "SELECT * FROM car";
-            statement = connection.prepareStatement(getClientsQuery);
-            ResultSet resultSet = statement.executeQuery();
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            statement = connection.prepareStatement(SqlQuery.GET_CARS_QUERY);
+            resultSet = statement.executeQuery();
             while (resultSet.next()){
                 cars.add(
-                        new StandartCarBuilder()
+                        Car.builder()
                         .id(resultSet.getInt("id"))
                         .brand(resultSet.getString("brand"))
                         .model(resultSet.getString("model"))
@@ -42,8 +47,9 @@ public class CarDaoImpl implements CarDao {
         }
         finally {
             try {
-                connection.close();
+                if(connection != null) connection.close();
                 if(statement != null) statement.close();
+                if(resultSet != null) resultSet.close();
             }
             catch (SQLException e) {
                 System.out.println(e.getMessage() + "Клиент дао, getClient");
@@ -54,27 +60,28 @@ public class CarDaoImpl implements CarDao {
 
     @Override
     public void addCar(Car car) {
-        Connection connection = configLoader.getConnection();
+        Connection connection = null;
         PreparedStatement statement = null;
         try {
-            String addClientQuery = "INSERT INTO car (brand,model,price,year_of_release,condition) " +
-                    "VALUES(?,?,?,?,?)";
-            configLoader.setSchema(connection.createStatement());
-            statement = connection.prepareStatement(addClientQuery);
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            statement = connection.prepareStatement(SqlQuery.ADD_CAR_QUERY);
             statement.setString(1,car.getBrand());
             statement.setString(2,car.getModel());
             statement.setDouble(3,car.getPrice());
             statement.setInt(4,car.getYearOfRelease());
             statement.setString(5,car.getCondition());
             statement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        }
+        catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
         finally {
             try {
-                connection.close();
+                if(connection != null) connection.close();
                 if(statement != null) statement.close();
-            } catch (SQLException e) {
+            }
+            catch (SQLException e) {
                 System.out.println(e.getMessage() + "Клиент дао, addClient");
             }
         }
@@ -82,48 +89,52 @@ public class CarDaoImpl implements CarDao {
 
     @Override
     public Car getCar(int id) {
-        Connection connection = configLoader.getConnection();
         Car car = null;
+        ResultSet resultSet = null;
+        Connection connection = null;
         PreparedStatement statement = null;
         try {
-            configLoader.setSchema(connection.createStatement());
-            String getClientQuery = "SELECT * FROM car WHERE id=?";
-            statement = connection.prepareStatement(getClientQuery);
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            statement = connection.prepareStatement(SqlQuery.GET_CAR_QUERY);
             statement.setInt(1,id);
-            ResultSet resultSet = statement.executeQuery();
-            resultSet.next();
-            car = new StandartCarBuilder()
-                    .id(resultSet.getInt("id"))
-                    .brand(resultSet.getString("brand"))
-                    .model(resultSet.getString("model"))
-                    .condition(resultSet.getString("condition"))
-                    .yearOfRelease(resultSet.getInt("year_of_release"))
-                    .price(resultSet.getDouble("price"))
-                    .build();
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                car =
+                        Car.builder()
+                        .id(resultSet.getInt("id"))
+                        .brand(resultSet.getString("brand"))
+                        .model(resultSet.getString("model"))
+                        .condition(resultSet.getString("condition"))
+                        .yearOfRelease(resultSet.getInt("year_of_release"))
+                        .price(resultSet.getDouble("price"))
+                        .build();
+            }
         }
         catch (SQLException e){
             System.out.println(e.getMessage());
         }
         finally {
             try {
-                connection.close();
+                if(connection != null) connection.close();
                 if(statement != null) statement.close();
-            } catch (SQLException e) {
+                if(resultSet != null) resultSet.close();
+            }
+            catch (SQLException e) {
                 System.out.println(e.getMessage() + "Клиент дао, getClient");
             }
         }
-
         return car;
     }
 
     @Override
     public void deleteCar(int id) {
-        Connection connection = configLoader.getConnection();
-        String deleteCarQuery = "DELETE FROM car WHERE id = ?";
+        Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
-            configLoader.setSchema(connection.createStatement());
-            preparedStatement = connection.prepareStatement(deleteCarQuery);
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            preparedStatement = connection.prepareStatement(SqlQuery.DELETE_CAR_QUERY);
             preparedStatement.setInt(1,id);
             preparedStatement.executeUpdate();
         }
@@ -132,7 +143,7 @@ public class CarDaoImpl implements CarDao {
         }
         finally {
             try {
-                connection.close();
+                if(connection != null) connection.close();
                 if(preparedStatement != null) preparedStatement.close();
             }
             catch (SQLException e) {
@@ -144,16 +155,12 @@ public class CarDaoImpl implements CarDao {
 
     @Override
     public void updateCar(Car car) {
-        Connection connection = configLoader.getConnection();
-        String updateCarQuery = "UPDATE car " +
-                "SET brand = ?, model = ?," +
-                "price = ?, year_of_release = ?," +
-                "condition = ? " +
-                "WHERE id = ?";
+        Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
-            configLoader.setSchema(connection.createStatement());
-            preparedStatement = connection.prepareStatement(updateCarQuery);
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            preparedStatement = connection.prepareStatement(SqlQuery.UPDATE_CAR_QUERY);
             preparedStatement.setString(1,car.getBrand());
             preparedStatement.setString(2,car.getModel());
             preparedStatement.setDouble(3,car.getPrice());
@@ -161,12 +168,13 @@ public class CarDaoImpl implements CarDao {
             preparedStatement.setString(5,car.getCondition());
             preparedStatement.setInt(6,car.getId());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         finally {
             try {
-                connection.close();
+                if(connection != null) connection.close();
                 if(preparedStatement != null) preparedStatement.close();
             }
             catch (SQLException e) {
