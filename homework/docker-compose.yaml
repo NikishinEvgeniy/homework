@@ -1,0 +1,12 @@
+
+version: '3.3'
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - 5430:5432
+    restart: always
+    environment:
+      POSTGRES_USER: evgen
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: car_service

@@ -1,95 +1,263 @@
 package carshop_service.application;
 
-import carshop_service.constant.UserState;
+import carshop_service.constant.ClientRole;
+import carshop_service.constant.ClientState;
 import carshop_service.entity.Client;
-import carshop_service.exception.ClientIsExistException;
-import carshop_service.exception.NoSuchClientException;
+import carshop_service.exception.NoSuchChooseException;
+import carshop_service.handler.ConsoleEntityHandler;
+import carshop_service.handler.EntityHandler;
+import carshop_service.in.ConsoleInfoWriter;
+import carshop_service.in.Writer;
+import carshop_service.out.ConsoleViewer;
+import carshop_service.out.Viewer;
+import carshop_service.service.*;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+public class ApplicationFacadeTest {
 
+    private ApplicationFacade applicationFacade;
+    private LogService logService;
+    private OrderService orderService;
+    private CarService carService;
+    private ClientService clientService;
+    private Viewer viewer;
+    private Writer writer;
+    private EntityHandler entityHandler;
+    private Client client;
 
-class ApplicationFacadeTest {
-    private ApplicationFacade facade = new ApplicationFacade();
-
-    @Test
-    @DisplayName(" сохранение клиента после регистрации")
-    void saveClientAfterRegistration_true(){
-        Client client = new Client("Client","Client","newLogin","newPassword","admin", UserState.BEGIN_STATE);
-        facade.saveClientAfterRegistration(client);
-    }
-    @Test
-    @DisplayName(" вывод ошибки, при сохранении клиента, который уже был в бд")
-    void saveClientAfterRegistration_false(){
-        Client client = new Client("Client","Client","login","password","admin", UserState.BEGIN_STATE);
-        Assertions.assertThrows(ClientIsExistException.class,() -> facade.saveClientAfterRegistration(client));
-    }
-    @Test
-    @DisplayName(" вывод ошибки при попытке получение клиента по не существующим login|password|role ")
-    void getClientAfterAuthorization_false(){
-        Client client = new Client("daas","passdsadaword","admin");
-        Assertions.assertThrows(NoSuchClientException.class,() -> facade.getClientAfterAuthorization(client));
-    }
-    @Test
-    @DisplayName(" получение клиента по существующим данным ")
-    void getClientAfterAuthorization_true(){
-        Client client = new Client("login","password","admin");
-        Assertions.assertDoesNotThrow( () -> facade.getClientAfterAuthorization(client) );
+    public ApplicationFacadeTest(){
+        this.logService = Mockito.mock(LogServiceImpl.class);
+        this.carService = Mockito.mock(CarServiceImpl.class);
+        this.orderService = Mockito.mock(OrderServiceImpl.class);
+        this.clientService = Mockito.mock(ClientServiceImpl.class);
+        this.viewer = Mockito.mock(ConsoleViewer.class);
+        this.writer = Mockito.mock(ConsoleInfoWriter.class);
+        this.entityHandler = Mockito.mock(ConsoleEntityHandler.class);
+        applicationFacade =
+                new ApplicationFacade(
+                logService,orderService,carService,clientService,viewer,writer,entityHandler
+                );
+        this.client = Client.builder().build();
     }
 
-    @Test
-    @DisplayName(" вывод ошибки ( для админа ) при выборе не существующего пункта меню ")
-    void chooseMenuForAdmin_false(){
-        Client user = new Client(UserState.BEGIN_STATE);
-        int choose = 32323232;
-        user.setRole("admin");
-        Assertions.assertEquals(false,facade.checkChoose(choose,user));
-    }
 
     @Test
-    @DisplayName(" выбор существующего пункта меню и получение состояния ( для админа ) ")
-    void chooseMenuForAdmin_true(){
-        Client user = new Client(UserState.BEGIN_STATE);
-        int choose = 13;
-        user.setRole("admin");
-        Assertions.assertEquals(true,facade.checkChoose(choose,user));
+    @SneakyThrows
+    @DisplayName("Смена состояния BEGIN_STATE -> BEGIN_CHOOSE_STATE")
+    public void changeStateFromBeginToBeginChoose(){
+        client.setState(ClientState.BEGIN_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.BEGIN_CHOOSE_STATE);
     }
 
     @Test
-    @DisplayName(" вывод ошибки ( для менеджера ) при выборе не существующего пункта меню ")
-    void chooseMenuForManager_false(){
-        Client user = new Client(UserState.BEGIN_STATE);
-        int choose = 13;
-        user.setRole("manager");
-        Assertions.assertEquals(false,facade.checkChoose(choose,user));
+    @SneakyThrows
+    @DisplayName("Смена состояния Choose_Main_Menu -> Admin_Menu")
+    public void changeStateFromСhooseMainMenuToAdminMenu(){
+        client.setState(ClientState.CHOOSE_MAIN_MENU_STATE);
+        client.setRole(ClientRole.ADMIN);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.ADMIN_MENU_STATE);
+    }
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Choose_Main_Menu -> Client_Menu")
+    public void changeStateFromСhooseMainMenuToClientMenu(){
+        client.setState(ClientState.CHOOSE_MAIN_MENU_STATE);
+        client.setRole(ClientRole.CLIENT);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.CLIENT_MENU_STATE);
     }
 
     @Test
-    @DisplayName(" выбор существующего пункта меню и получение состояния ( для менеджера ) ")
-    void chooseMenuForManager_true(){
-        Client user = new Client(UserState.BEGIN_STATE);
-        int choose = 9;
-        user.setRole("manager");
-        Assertions.assertEquals(true,facade.checkChoose(choose,user));
+    @SneakyThrows
+    @DisplayName("Смена состояния Choose_Main_Menu -> Manager_Menu")
+    public void changeStateFromСhooseMainMenuToManagerMenu(){
+        client.setState(ClientState.CHOOSE_MAIN_MENU_STATE);
+        client.setRole(ClientRole.MANAGER);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.MANAGER_MENU_STATE);
     }
 
     @Test
-    @DisplayName(" вывод ошибки ( для клиента ) при выборе не существующего пункта меню ")
-    void chooseMenuForСlient_false(){
-        Client user = new Client(UserState.BEGIN_STATE);
-        int choose = 3;
-        user.setRole("client");
-        Assertions.assertEquals(false,facade.checkChoose(choose,user));
+    @SneakyThrows
+    @DisplayName("Смена состояния Begin_Choose -> Registration")
+    public void changeStateFromBeginChooseToRegistration(){
+        Mockito.when(writer.getChoose()).thenReturn(1);
+        client.setState(ClientState.BEGIN_CHOOSE_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.REGISTRATION_STATE);
     }
 
     @Test
-    @DisplayName(" выбор существующего пункта меню и получение состояния ( для клиента )) ")
-    void chooseMenuForClient_true(){
-        Client user = new Client(UserState.BEGIN_STATE);
-        int choose = 1;
-        user.setRole("client");
-        Assertions.assertEquals(true,facade.checkChoose(choose,user));
+    @SneakyThrows
+    @DisplayName("Смена состояния Begin_Choose -> Authorization")
+    public void changeStateFromBeginChooseToAuthorization(){
+        Mockito.when(writer.getChoose()).thenReturn(2);
+        client.setState(ClientState.BEGIN_CHOOSE_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.AUTHORIZATION_STATE);
+    }
+
+    @Test
+    @DisplayName("Вывод ошибки при не правильном вводе Begin_Choose -> Begin_Choose")
+    public void changeStateFromBeginChooseToBeginChooseException(){
+        Mockito.when(writer.getChoose()).thenReturn(3);
+        client.setState(ClientState.BEGIN_CHOOSE_STATE);
+        Assertions.assertThrows(NoSuchChooseException.class,()->applicationFacade.checkState(client));
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Admin_Menu -> Menu_Choose")
+    public void changeStateFromAdminMenuToMenuChoose(){
+        client.setState(ClientState.ADMIN_MENU_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.MENU_CHOOSE_STATE);
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Client_Menu -> Menu_Choose")
+    public void changeStateFromClientMenuToMenuChoose(){
+        client.setState(ClientState.CLIENT_MENU_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.MENU_CHOOSE_STATE);
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Manager_Menu -> Menu_Choose")
+    public void changeStateFromManagerMenuToMenuChoose(){
+        client.setState(ClientState.MANAGER_MENU_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.MENU_CHOOSE_STATE);
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Order_Output_Menu -> Order_Filter")
+    public void changeStateFromOrderOutputMenuToOrderFilter(){
+        Mockito.when(writer.getChoose()).thenReturn(1);
+        client.setState(ClientState.ORDER_OUTPUT_MENU_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.ORDER_FILTER_STATE);
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Order_Output_Menu -> Choose_Main_Menu")
+    public void changeStateFromOrderOutputMenuToChooseMainMenu(){
+        Mockito.when(writer.getChoose()).thenReturn(2);
+        client.setState(ClientState.ORDER_OUTPUT_MENU_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.CHOOSE_MAIN_MENU_STATE);
+    }
+
+    @Test
+    @DisplayName("Вывод ошибки при не правильном вводе Order_Output_Menu -> Order_Output_Menu")
+    public void changeStateFromOrderOutputMenuToOrderOutputMenuException(){
+        Mockito.when(writer.getChoose()).thenReturn(3);
+        client.setState(ClientState.ORDER_OUTPUT_MENU_STATE);
+        Assertions.assertThrows(NoSuchChooseException.class,()->applicationFacade.checkState(client));
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Magazine_Output_Menu -> Order_Filter")
+    public void changeStateFromMagazineOutputMenuToMagazineFilter(){
+        Mockito.when(writer.getChoose()).thenReturn(1);
+        client.setState(ClientState.MAGAZINE_OUTPUT_MENU_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.MAGAZINE_FILTER_STATE);
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Magazine_Output_Menu -> Choose_Main_Menu")
+    public void changeStateFromMagazineOutputMenuToChooseMainMenu(){
+        Mockito.when(writer.getChoose()).thenReturn(2);
+        client.setState(ClientState.MAGAZINE_OUTPUT_MENU_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.CHOOSE_MAIN_MENU_STATE);
+    }
+
+    @Test
+    @DisplayName("Вывод ошибки при не правильном вводе Magazine_Output_Menu -> Magazine_Output_Menu")
+    public void changeStateFromMagazineOutputMenuToMagazineOutputMenuException(){
+        Mockito.when(writer.getChoose()).thenReturn(3);
+        client.setState(ClientState.MAGAZINE_OUTPUT_MENU_STATE);
+        Assertions.assertThrows(NoSuchChooseException.class,()->applicationFacade.checkState(client));
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Client_Output_Menu -> Client_Sort")
+    public void changeStateFromClientOutputMenuToClientSort(){
+        Mockito.when(writer.getChoose()).thenReturn(1);
+        client.setState(ClientState.CLIENT_OUTPUT_MENU_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.CLIENT_SORT_STATE);
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Client_Output_Menu -> Client_Filter")
+    public void changeStateFromClientOutputMenuToClientFilter(){
+        Mockito.when(writer.getChoose()).thenReturn(2);
+        client.setState(ClientState.CLIENT_OUTPUT_MENU_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.CLIENT_FILTER_STATE);
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Client_Output_Menu -> Choose_Main_Menu")
+    public void changeStateFromClientOutputMenuToChooseMainMenu(){
+        Mockito.when(writer.getChoose()).thenReturn(3);
+        client.setState(ClientState.CLIENT_OUTPUT_MENU_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.CHOOSE_MAIN_MENU_STATE);
+    }
+
+    @Test
+    @DisplayName("Вывод ошибки при не правильном вводе Client_Output_Menu -> Client_Output_Menu")
+    public void changeStateFromClientOutputMenuToClientOutputMenuException(){
+        Mockito.when(writer.getChoose()).thenReturn(4);
+        client.setState(ClientState.CLIENT_OUTPUT_MENU_STATE);
+        Assertions.assertThrows(NoSuchChooseException.class,()->applicationFacade.checkState(client));
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Car_Output_Menu -> Car_Filter")
+    public void changeStateFromCarOutputMenuToCarFilter(){
+        Mockito.when(writer.getChoose()).thenReturn(1);
+        client.setState(ClientState.CAR_OUTPUT_MENU_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.CAR_FILTER_STATE);
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Смена состояния Car_Output_Menu -> Choose_Main_Menu")
+    public void changeStateFromCarOutputMenuToChooseMainMenu(){
+        Mockito.when(writer.getChoose()).thenReturn(2);
+        client.setState(ClientState.CAR_OUTPUT_MENU_STATE);
+        applicationFacade.checkState(client);
+        Assertions.assertEquals(client.getState(),ClientState.CHOOSE_MAIN_MENU_STATE);
+    }
+
+    @Test
+    @DisplayName("Вывод ошибки при не правильном вводе Car_Output_Menu -> Car_Output_Menu")
+    public void changeStateFromCarOutputMenuToCarOutputMenuException(){
+        Mockito.when(writer.getChoose()).thenReturn(3);
+        client.setState(ClientState.CAR_OUTPUT_MENU_STATE);
+        Assertions.assertThrows(NoSuchChooseException.class,()->applicationFacade.checkState(client));
     }
 
 }

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+    <changeSet id="002-insert-value" author="evgen">
+
+        <insert tableName="car" schemaName="private_schema">
+            <column name="brand" value="brand1"/>
+            <column name="model" value="model1"/>
+            <column name="condition" value="condition1"/>
+            <column name="price" valueNumeric="200"/>
+            <column name="year_of_release" valueNumeric="24"/>
+        </insert>
+
+        <insert tableName="car" schemaName="private_schema">
+            <column name="brand" value="brand2"/>
+            <column name="model" value="model2"/>
+            <column name="condition" value="condition2"/>
+            <column name="price" valueNumeric="500"/>
+            <column name="year_of_release" valueNumeric="13"/>
+        </insert>
+
+        <insert tableName="orders" schemaName="private_schema">
+            <column name="car_id" valueNumeric="1"/>
+            <column name="client_id" valueNumeric="1"/>
+            <column name="state" value="OK"/>
+            <column name="type" value="SALE"/>
+            <column name="date_time" value="2024-08-09T17:51:55.172877100"/>
+        </insert>
+
+        <insert tableName="orders" schemaName="private_schema">
+            <column name="car_id" valueNumeric="2"/>
+            <column name="client_id" valueNumeric="2"/>
+            <column name="state" value="UPDATE"/>
+            <column name="type" value="PROCESSING"/>
+            <column name="date_time" value="2024-07-09T13:51:55.172877100"/>
+        </insert>
+
+        <insert tableName="client" schemaName="private_schema">
+            <column name="name" value="name1"/>
+            <column name="surname" value="surname1"/>
+            <column name="login" value="admin"/>
+            <column name="password" value="admin"/>
+            <column name="state" value="BEGIN_STATE"/>
+            <column name="count_of_buy" valueNumeric="10"/>
+            <column name="role" value="ADMIN"/>
+        </insert>
+
+        <insert tableName="client" schemaName="private_schema">
+            <column name="name" value="name2"/>
+            <column name="surname" value="surname2"/>
+            <column name="login" value="client"/>
+            <column name="password" value="client"/>
+            <column name="state" value="BEGIN_STATE"/>
+            <column name="count_of_buy" valueNumeric="40"/>
+            <column name="role" value="CLIENT"/>
+        </insert>
+
+        <insert tableName="log" schemaName="private_schema">
+            <column name="client_id" valueNumeric="1"/>
+            <column name="action" value="ADD_CAR_ACTION"/>
+            <column name="date_time" value="2024-07-09T13:51:55.172877100"/>
+        </insert>
+
+        <insert tableName="log" schemaName="private_schema">
+            <column name="client_id" valueNumeric="2"/>
+            <column name="action" value="UPDATE_ORDER_ACTION"/>
+            <column name="date_time" value="2024-08-09T14:51:55.172877100"/>
+        </insert>
+
+    </changeSet>
+</databaseChangeLog>

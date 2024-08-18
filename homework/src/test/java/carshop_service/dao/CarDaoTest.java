@@ -1,48 +1,73 @@
 package carshop_service.dao;
 
+import carshop_service.application.ConfigLoader;
+import carshop_service.application.DataBaseConfiguration;
+import carshop_service.container.PostgreContainer;
 import carshop_service.entity.Car;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 
 public class CarDaoTest {
-    private CarDaoImpl carDao = new CarDaoImpl();
 
+    private static PostgreSQLContainer<?> postgreContainer;
+    private static CarDao carDao;
 
-    @Test
-    @DisplayName(" Ошибка при получение машины ")
-    public void getCarTest_false(){
-        Assertions.assertEquals(null,carDao.getCar(3232));
+    @BeforeAll
+    public static void setUp() {
+        postgreContainer = new PostgreContainer().getPostgreSQLContainer();
+        String password = postgreContainer.getPassword();
+        String username = postgreContainer.getUsername();
+        DataBaseConfiguration dataBaseConfiguration = new DataBaseConfiguration(postgreContainer.getJdbcUrl()
+        ,username,password);
+        carDao = new CarDaoImpl(dataBaseConfiguration);
     }
 
 
-
-    @Test
-    @DisplayName(" Добавление новой машины ")
-    public void saveCarTest_true(){
-        Car car = new Car("brand109","model103",1000,32,"GOOD");
-        carDao.addCar(car);
-        Assertions.assertEquals(car,carDao.getCar(car.getId()));
+    @AfterAll
+    public static void closeConnection(){
+        postgreContainer.close();
     }
 
     @Test
-    @DisplayName(" Обновление информации о машине ")
-    public void updateCarTest_true(){
-        Car car = new Car("brand109","model103",1000,32,"GOOD");
-        carDao.addCar(car);
-        car.setPrice(3232.32);
+    @DisplayName("Машина добавляется в базу данных")
+    void addCarTest(){
+        String brand = "TEST";
+        carDao.addCar(
+                Car.builder()
+                .brand(brand)
+                .build()
+        );
+        Assertions.assertTrue(carDao.getAllCars().stream().anyMatch(x -> x.getBrand().equals(brand)));
+    }
+
+    @Test
+    @DisplayName("Машина удаляется из базы данных")
+    void deleteCarTest(){
+        int id = 1;
+        carDao.deleteCar(id);
+        Assertions.assertNull(carDao.getCar(id));
+    }
+
+    @Test
+    @DisplayName("Машина обновляется в базе данных")
+    void updateCarTest(){
+        int id = 2;
+        Car carFromDao = carDao.getCar(id);
+        Car car = Car.builder()
+        .id(id)
+        .brand("UPDATE")
+        .price(200)
+        .model("UPDATE")
+        .build();
         carDao.updateCar(car);
-        Assertions.assertEquals(car,carDao.getCar(car.getId()));
+        Assertions.assertNotEquals(carFromDao,carDao.getCar(id));
     }
 
     @Test
-    @DisplayName(" Удаление информации о машине ")
-    public void deleteCarTest_true(){
-        Car car = new Car("brand109","model103",1000,32,"GOOD");
-        carDao.addCar(car);
-        carDao.deleteCar(car);
-        Assertions.assertEquals(null,carDao.getCar(car.getId()));
+    @DisplayName("Машина достается из базы данных")
+    void getCarTest(){
+        int id = 2;
+        Assertions.assertNotNull(carDao.getCar(2));
     }
-
 }

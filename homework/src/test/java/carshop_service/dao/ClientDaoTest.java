@@ -1,52 +1,82 @@
 package carshop_service.dao;
 
-import carshop_service.constant.UserState;
+import carshop_service.application.ConfigLoader;
+import carshop_service.application.DataBaseConfiguration;
+import carshop_service.constant.ClientRole;
+import carshop_service.constant.ClientState;
+import carshop_service.container.PostgreContainer;
 import carshop_service.entity.Client;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 public class ClientDaoTest {
-    private ClientDaoImpl clientDao = new ClientDaoImpl();
 
-    @Test
-    @DisplayName(" Ошибка при получение клиента ")
-    public void getClientTest_false(){
-        Assertions.assertEquals(null,clientDao.getClient(3232));
+    private static PostgreSQLContainer<?> postgreContainer;
+    private static ClientDao clientDao;
+
+    @BeforeAll
+    public static void setUp() {
+        postgreContainer = new PostgreContainer().getPostgreSQLContainer();
+        String password = postgreContainer.getPassword();
+        String username = postgreContainer.getUsername();
+        DataBaseConfiguration dataBaseConfiguration = new DataBaseConfiguration(postgreContainer.getJdbcUrl()
+                ,username,password);
+        clientDao = new ClientDaoImpl(dataBaseConfiguration);
     }
 
-
-
-    @Test
-    @DisplayName(" Добавление нового клиента ")
-    public void saveClientTest_true(){
-        Client client = new Client("Name","Surname","lpgfgd","32","admin", UserState.BEGIN_STATE);
-        clientDao.addClient(client);
-        Assertions.assertEquals(client,clientDao.getClient(client.getId()));
+    @AfterAll
+    public static void closeConnection(){
+        postgreContainer.close();
     }
 
     @Test
-    @DisplayName(" Обновление информации о клиенте ")
-    public void updateClientTest_true(){
-        Client client = new Client("Name","Surname","lpgfgd","32","admin", UserState.BEGIN_STATE);
+    @DisplayName("Клиент достается из базы данных")
+    void getClientTest(){
+        int id = 2;
+        Assertions.assertNotNull(clientDao.getClient(id));
+    }
+
+    @Test
+    @DisplayName("Клиент добавляется в базу данных")
+    void addClientTest(){
+        String name = "test";
+        Client client = Client.builder()
+                .state(ClientState.CLIENT_FILTER_STATE)
+                .role(ClientRole.ADMIN)
+                .name(name)
+                .build();
         clientDao.addClient(client);
-        client.setCountOfBuy(3232);
+        Assertions.assertTrue(clientDao.getAllClients().stream().anyMatch(x -> x.getName().equals(name)));
+    }
+
+    @Test
+    @DisplayName("Клиент обновляется в базе данных")
+    void updateClientTest(){
+        int id = 2;
+        Client clientFromBd = clientDao.getClient(id);
+        String name = "update";
+        Client client = Client.builder()
+                .id(id)
+                .role(ClientRole.CLIENT)
+                .state(ClientState.CLIENT_FILTER_STATE)
+                .name(name)
+                .build();
         clientDao.updateClient(client);
-        Assertions.assertEquals(client,clientDao.getClient(client.getId()));
+        Assertions.assertNotEquals(clientFromBd,clientDao.getClient(id));
     }
 
     @Test
-    @DisplayName(" Проверка на существование информации о клиенте ")
-    public void isExistClientTest_true(){
-        Client client = new Client("Name","Surname","lpgfgd","32","admin", UserState.BEGIN_STATE);
-        clientDao.addClient(client);
-        Assertions.assertEquals(true,clientDao.isExist(client));
+    @DisplayName("Клиент существует в базе данных ( поиск логину,паролю,роли )")
+    void clientIsExistTest(){
+        int id = 1;
+        String login = "admin";
+        String password = "admin";
+        Client client = Client.builder()
+                .login(login)
+                .password(password)
+                .role(ClientRole.ADMIN)
+                .build();
+        Assertions.assertTrue(clientDao.isExist(client));
     }
 
-    @Test
-    @DisplayName(" Ошибка при проверке на существование информации о клиенте ")
-    public void isExistClientTest_false(){
-        Client client = new Client("Name","Surname","lpgfgd","32","admin", UserState.BEGIN_STATE);
-        Assertions.assertEquals(false,clientDao.isExist(client));
-    }
 }

@@ -1,5 +1,8 @@
 package carshop_service.constant;
 
+/**
+ * Класс, строки, отвечающие за view
+ */
 public class ViewConstant {
     public static final String BEGIN_STR = "Добро пожаловать в наш сервис";
     public static final String REGISTRATION_STR = "Регистрация ";
@@ -59,7 +62,7 @@ public class ViewConstant {
     public static final String ENTER_COUNT_OF_BUY = "Количество покупок: ";
     public static final String ENTER_CONDITION = "Состояние: ";
     public static final String ENTER_YEAR_OF_RELEASE = "Год выпуска: ";
-    public static final String ENTER_ROLE ="Должность (маленькими буквами): ";
+    public static final String ENTER_ROLE ="Должность (большими буквами): ";
     public static final String MAIN_MENU_TITLE ="Главное меню ";
     public static final String ADMIN_COMMAND =
             """

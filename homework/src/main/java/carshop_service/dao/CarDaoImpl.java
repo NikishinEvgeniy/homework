@@ -1,49 +1,185 @@
 package carshop_service.dao;
 
+import carshop_service.application.DataBaseConfiguration;
+import carshop_service.constant.SqlQuery;
 import carshop_service.entity.Car;
+import lombok.AllArgsConstructor;
 
-import java.util.HashMap;
+import java.sql.*;
+import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Имплементация интерфейса, DAO - data accept object, класс общающийся с базой данных car
+ */
+
+@AllArgsConstructor
 public class CarDaoImpl implements CarDao {
 
-    private HashMap<Integer, Car> cars;
-
-    public CarDaoImpl(){
-        this.cars = new HashMap<>();
-        Car car1 = new Car("Brand1","Model1",100,10,"GOOD1");
-        Car car2 = new Car("Brand2","Model2",200,20,"GOOD2");
-        Car car3 = new Car("Brand3","Model3",300,30,"GOOD3");
-        Car car4 = new Car("Brand4","Model4",400,40,"GOOD4");
-        this.cars.put(car1.getId(),car1);
-        this.cars.put(car2.getId(),car2);
-        this.cars.put(car3.getId(),car3);
-        this.cars.put(car4.getId(),car4);
-    }
+    private final DataBaseConfiguration database;
 
     @Override
     public List<Car> getAllCars() {
-        return cars.values().stream().toList();
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        List<Car> cars = new LinkedList<>();
+        try {
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            statement = connection.prepareStatement(SqlQuery.GET_CARS_QUERY);
+            resultSet = statement.executeQuery();
+            while (resultSet.next()){
+                cars.add(
+                        Car.builder()
+                        .id(resultSet.getInt("id"))
+                        .brand(resultSet.getString("brand"))
+                        .model(resultSet.getString("model"))
+                        .condition(resultSet.getString("condition"))
+                        .yearOfRelease(resultSet.getInt("year_of_release"))
+                        .price(resultSet.getDouble("price"))
+                        .build()
+                );
+            }
+        }
+        catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        finally {
+            try {
+                if(connection != null) connection.close();
+                if(statement != null) statement.close();
+                if(resultSet != null) resultSet.close();
+            }
+            catch (SQLException e) {
+                System.out.println(e.getMessage() + "Клиент дао, getClient");
+            }
+        }
+        return cars;
     }
 
     @Override
     public void addCar(Car car) {
-        cars.put(car.getId(),car);
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            statement = connection.prepareStatement(SqlQuery.ADD_CAR_QUERY);
+            statement.setString(1,car.getBrand());
+            statement.setString(2,car.getModel());
+            statement.setDouble(3,car.getPrice());
+            statement.setInt(4,car.getYearOfRelease());
+            statement.setString(5,car.getCondition());
+            statement.executeUpdate();
+        }
+        catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        finally {
+            try {
+                if(connection != null) connection.close();
+                if(statement != null) statement.close();
+            }
+            catch (SQLException e) {
+                System.out.println(e.getMessage() + "Клиент дао, addClient");
+            }
+        }
     }
 
     @Override
     public Car getCar(int id) {
-        return this.cars.get(id);
+        Car car = null;
+        ResultSet resultSet = null;
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            statement = connection.prepareStatement(SqlQuery.GET_CAR_QUERY);
+            statement.setInt(1,id);
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                car =
+                        Car.builder()
+                        .id(resultSet.getInt("id"))
+                        .brand(resultSet.getString("brand"))
+                        .model(resultSet.getString("model"))
+                        .condition(resultSet.getString("condition"))
+                        .yearOfRelease(resultSet.getInt("year_of_release"))
+                        .price(resultSet.getDouble("price"))
+                        .build();
+            }
+        }
+        catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        finally {
+            try {
+                if(connection != null) connection.close();
+                if(statement != null) statement.close();
+                if(resultSet != null) resultSet.close();
+            }
+            catch (SQLException e) {
+                System.out.println(e.getMessage() + "Клиент дао, getClient");
+            }
+        }
+        return car;
     }
 
     @Override
-    public void deleteCar(Car car) {
-        this.cars.remove(car.getId());
+    public void deleteCar(int id) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            preparedStatement = connection.prepareStatement(SqlQuery.DELETE_CAR_QUERY);
+            preparedStatement.setInt(1,id);
+            preparedStatement.executeUpdate();
+        }
+        catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        finally {
+            try {
+                if(connection != null) connection.close();
+                if(preparedStatement != null) preparedStatement.close();
+            }
+            catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
     }
 
     @Override
     public void updateCar(Car car) {
-        this.cars.put(car.getId(),car);
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            preparedStatement = connection.prepareStatement(SqlQuery.UPDATE_CAR_QUERY);
+            preparedStatement.setString(1,car.getBrand());
+            preparedStatement.setString(2,car.getModel());
+            preparedStatement.setDouble(3,car.getPrice());
+            preparedStatement.setInt(4,car.getYearOfRelease());
+            preparedStatement.setString(5,car.getCondition());
+            preparedStatement.setInt(6,car.getId());
+            preparedStatement.executeUpdate();
+        }
+        catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        finally {
+            try {
+                if(connection != null) connection.close();
+                if(preparedStatement != null) preparedStatement.close();
+            }
+            catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
-
 }

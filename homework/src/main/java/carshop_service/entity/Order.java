@@ -1,75 +1,33 @@
 package carshop_service.entity;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Objects;
+import carshop_service.constant.ClientRole;
+import carshop_service.constant.ClientState;
+import carshop_service.constant.OrderState;
+import carshop_service.constant.OrderType;
+import carshop_service.exception.IncorrectRoleException;
+import carshop_service.exception.IncorrectStateException;
+import carshop_service.exception.IncorrectTypeException;
+import lombok.*;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+
+/**
+ * Сущность order
+ */
+@Getter
+@Setter
+@Builder
+@EqualsAndHashCode
+@AllArgsConstructor
 public class Order {
-    private static int globalId;
+
     private int id;
     private int carId;
     private int clientId;
-    private String state;
-    private String type;
-    private LocalDateTime date;
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public Order(int carId, int clientId, String state, String type,LocalDateTime date) {
-        this.carId = carId;
-        this.clientId = clientId;
-        this.state = state;
-        this.id = globalId;
-        this.type = type;
-        this.date = date;
-        globalId++;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getCarId() {
-        return carId;
-    }
-
-    public void setCarId(int carId) {
-        this.carId = carId;
-    }
-
-    public int getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(int clientId) {
-        this.clientId = clientId;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
+    private OrderState state;
+    private OrderType type;
+    private LocalDateTime dateTime;
 
     @Override
     public String toString() {
@@ -79,22 +37,49 @@ public class Order {
                 " Айди машины = " + carId + "\n" +
                 " Состояние = " + state + "\n" +
                 " Тип = " + type + "\n" +
-                " Дата = " + date + "\n" +
+                " Дата = " + dateTime + "\n" +
                 "----------------------------\n";
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Order order = (Order) o;
-        return id == order.id && carId == order.carId && clientId == order.clientId
-                && Objects.equals(state, order.state) && Objects.equals(type, order.type)
-                && Objects.equals(date, order.date);
-    }
+    public static class OrderBuilder {
+        private int id;
+        private int carId;
+        private int clientId;
+        private OrderState state;
+        private OrderType type;
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, carId, clientId, state, type,date);
+        public OrderBuilder id(int id) {
+            this.id = id;
+            return this;
+        }
+        public OrderBuilder carId(int carId) {
+            this.carId = carId;
+            return this;
+        }
+        public OrderBuilder clientId(int clientId) {
+            this.clientId = clientId;
+            return this;
+        }
+        public OrderBuilder state(OrderState state) {
+            this.state = state;
+            return this;
+        }
+        public OrderBuilder type(OrderType type) {
+            this.type = type;
+            return this;
+        }
+        public OrderBuilder checkState() throws IncorrectStateException {
+            if (Arrays.stream(OrderState.values()).noneMatch(x -> x.equals(this.state)))
+                throw new IncorrectStateException();
+            return this;
+        }
+        public OrderBuilder checkType() throws IncorrectTypeException {
+            if (Arrays.stream(OrderType.values()).noneMatch(x -> x.equals(this.type)))
+                throw new IncorrectTypeException();
+            return this;
+        }
+        public Order build() {
+            return new Order(this.id,this.carId,this.clientId,this.state,this.type,LocalDateTime.now());
+        }
     }
 }

@@ -5,7 +5,6 @@ import carshop_service.entity.Car;
 import carshop_service.entity.Client;
 import carshop_service.entity.Log;
 import carshop_service.entity.Order;
-
 import java.util.List;
 
 
@@ -146,5 +145,4 @@ public class ConsoleViewer implements Viewer{
     public void showFilterMenu(){
         System.out.println(ViewConstant.OUTPUT_FILTER_MENU_CHOOSE);
     }
-
 }
