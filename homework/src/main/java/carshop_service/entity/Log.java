@@ -1,8 +1,28 @@
 package carshop_service.entity;
 
+<<<<<<< Updated upstream
+=======
+import carshop_service.constant.LogAction;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
+
+>>>>>>> Stashed changes
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+<<<<<<< Updated upstream
+=======
+/**
+ * Сущность log
+ */
+@Builder
+@Setter
+@Getter
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+>>>>>>> Stashed changes
 public class Log {
     private static int globalId;
     private int id;
@@ -58,13 +78,25 @@ public class Log {
         return Objects.hash(id, dateTime, clientId, action);
     }
 
+    @JsonCreator
+    public Log(
+            @JsonProperty(value = "clientId", required = true) int clientId,
+            @JsonProperty(value = "action", required = true) LogAction action,
+            @JsonProperty(value = "dateTime", required = true) LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+        this.clientId = clientId;
+        this.action = action;
+    }
+
+
     @Override
     public String toString() {
-        return "----------------------------\n"+
+        return "----------------------------\n" +
                 " Айди = " + id + "\n" +
                 " Клиент айди = " + clientId + "\n" +
                 " Действие = " + action + "\n" +
-                " Дата = " + dateTime + "\n"+
+                " Дата = " + dateTime + "\n" +
                 "----------------------------\n";
     }
+
 }

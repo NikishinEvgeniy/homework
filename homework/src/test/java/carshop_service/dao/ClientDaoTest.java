@@ -1,6 +1,13 @@
 package carshop_service.dao;
 
+<<<<<<< Updated upstream
 import carshop_service.constant.UserState;
+=======
+import carshop_service.application.DataBaseConfiguration;
+import carshop_service.constant.ClientRole;
+import carshop_service.constant.ClientState;
+import carshop_service.container.PostgreContainer;
+>>>>>>> Stashed changes
 import carshop_service.entity.Client;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

@@ -3,17 +3,58 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>org.example</groupId>
     <artifactId>carshop-service</artifactId>
     <version>1.0-SNAPSHOT</version>
+<<<<<<< Updated upstream
 
+=======
+    <url>http://maven.apache.org</url>
+    <packaging>war</packaging>
+    <build>
+        <finalName>car-service</finalName>
+    </build>
+>>>>>>> Stashed changes
     <properties>
         <maven.compiler.source>22</maven.compiler.source>
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+<<<<<<< Updated upstream
     </properties>
     <dependencies>
+=======
+
+        <mockito.version>5.12.0</mockito.version>
+        <jupiter.version>5.10.3</jupiter.version>
+        <postgresql.version>42.7.3</postgresql.version>
+        <liquibase.version>4.29.1</liquibase.version>
+        <projectlombok.version>1.18.34</projectlombok.version>
+        <testcontainers.version>1.16.0</testcontainers.version>
+        <servletApi.version>6.0.0</servletApi.version>
+        <jackson-databind.version>2.17.2</jackson-databind.version>
+        <jackson-datatype.version>2.13.0</jackson-datatype.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <mapstruct-pocessor.version>1.5.3.Final</mapstruct-pocessor.version>
+        <aspectJweaver.version>1.9.19</aspectJweaver.version>
+        <aspectj-maven-plugin.version>1.14</aspectj-maven-plugin.version>
+
+    </properties>
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/dev.aspectj/aspectj-maven-plugin -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>${aspectJweaver.version}</version>
+        </dependency>
+
+        <!-- AspectJ Weaver -->
+        <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectJweaver.version}</version>
+            </dependency>
+        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter -->
+>>>>>>> Stashed changes
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -22,11 +63,72 @@
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
+<<<<<<< Updated upstream
+=======
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.liquibase/liquibase-core -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${projectlombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${servletApi.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+
+        <!-- MapStruct Processor -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>${mapstruct-pocessor.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+>>>>>>> Stashed changes
             <artifactId>junit-jupiter</artifactId>
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
         <dependency>
+<<<<<<< Updated upstream
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>RELEASE</version>
@@ -67,6 +169,17 @@
             <artifactId>junit-jupiter</artifactId>
             <version>RELEASE</version>
             <scope>test</scope>
+=======
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson-datatype.version}</version>
+>>>>>>> Stashed changes
         </dependency>
     </dependencies>
 

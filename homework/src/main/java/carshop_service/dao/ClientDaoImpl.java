@@ -2,10 +2,24 @@ package carshop_service.dao;
 
 import carshop_service.constant.UserState;
 import carshop_service.entity.Client;
+<<<<<<< Updated upstream
 
 import java.util.HashMap;
 import java.util.List;
 
+=======
+import lombok.AllArgsConstructor;
+
+import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
+
+
+/**
+ * Имплементация интерфейса, DAO - data accept object, класс общающийся с базой данных client
+ */
+@AllArgsConstructor
+>>>>>>> Stashed changes
 public class ClientDaoImpl implements ClientDao {
 
     private HashMap<Integer, Client> clients;
@@ -21,9 +35,42 @@ public class ClientDaoImpl implements ClientDao {
         clients.put(client4.getId(), client4);
     }
 
+
     @Override
     public void addClient(Client client){
+<<<<<<< Updated upstream
         clients.put(client.getId(),client);
+=======
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            statement = connection.prepareStatement(SqlQuery.ADD_CLIENT_QUERY);
+            statement.setString(1,client.getName());
+            statement.setString(2,client.getSurname());
+            statement.setString(3,client.getLogin());
+            statement.setString(4,client.getPassword());
+            if(client.getRole() != null) statement.setString(5,client.getRole().toString());
+            else statement.setString(5,null);
+            if(client.getState() != null) statement.setString(6,client.getState().toString());
+            else statement.setString(6,null);
+            statement.setInt(7,client.getCountOfBuy());
+            statement.executeUpdate();
+        }
+        catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        finally {
+            try {
+                if(connection != null) connection.close();
+                if(statement != null) statement.close();
+            }
+            catch (SQLException e) {
+                System.out.println(e.getMessage() + "Клиент дао, addClient");
+            }
+        }
+>>>>>>> Stashed changes
     }
 
     @Override
@@ -38,7 +85,40 @@ public class ClientDaoImpl implements ClientDao {
 
     @Override
     public void updateClient(Client client) {
+<<<<<<< Updated upstream
         this.clients.put(client.getId(),client);
+=======
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = database.getConnection();
+            database.setSchema(connection.createStatement());
+            statement = connection.prepareStatement(SqlQuery.UPDATE_CLIENT_QUERY);
+            statement.setString(1,client.getName());
+            statement.setString(2,client.getSurname());
+            statement.setString(3,client.getLogin());
+            statement.setString(4,client.getPassword());
+            if(client.getRole() != null) statement.setString(5,client.getRole().toString());
+            else statement.setString(5,null);
+            if(client.getState() != null) statement.setString(6,client.getState().toString());
+            else statement.setString(6,null);
+            statement.setInt(7,client.getCountOfBuy());
+            statement.setInt(8,client.getId());
+            statement.executeUpdate();
+        }
+        catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        finally {
+            try {
+                if(connection != null) connection.close();
+                if(statement != null) statement.close();
+            }
+            catch (SQLException e) {
+                System.out.println(e.getMessage() + "Клиент дао, addClient");
+            }
+        }
+>>>>>>> Stashed changes
     }
 
     @Override

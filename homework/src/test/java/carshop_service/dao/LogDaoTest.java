@@ -1,5 +1,9 @@
 package carshop_service.dao;
 
+<<<<<<< Updated upstream
+=======
+import carshop_service.application.DataBaseConfiguration;
+>>>>>>> Stashed changes
 import carshop_service.constant.LogAction;
 import carshop_service.entity.Log;
 import org.junit.jupiter.api.Assertions;

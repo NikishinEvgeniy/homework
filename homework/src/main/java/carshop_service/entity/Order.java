@@ -1,9 +1,29 @@
 package carshop_service.entity;
 
+<<<<<<< Updated upstream
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
+=======
+import carshop_service.constant.OrderState;
+import carshop_service.constant.OrderType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+/**
+ * Сущность order
+ */
+@Builder
+@Setter
+@Getter
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+>>>>>>> Stashed changes
 public class Order {
     private static int globalId;
     private int id;
@@ -71,9 +91,24 @@ public class Order {
         this.state = state;
     }
 
+    @JsonCreator
+    public Order(
+            @JsonProperty(value = "carId", required = true) int carId,
+            @JsonProperty(value = "clientId", required = true) int clientId,
+            @JsonProperty(value = "state", required = true) OrderState state,
+            @JsonProperty(value = "type", required = true) OrderType type,
+            @JsonProperty(value = "dateTime", required = true) LocalDateTime dateTime) {
+        this.carId = carId;
+        this.clientId = clientId;
+        this.type = type;
+        this.dateTime = dateTime;
+        this.state = state;
+    }
+
+
     @Override
     public String toString() {
-        return "----------------------------\n"+
+        return "----------------------------\n" +
                 " Айди = " + id + "\n" +
                 " Айди клиента = " + clientId + "\n" +
                 " Айди машины = " + carId + "\n" +
@@ -82,6 +117,7 @@ public class Order {
                 " Дата = " + date + "\n" +
                 "----------------------------\n";
     }
+<<<<<<< Updated upstream
 
     @Override
     public boolean equals(Object o) {
@@ -97,4 +133,6 @@ public class Order {
     public int hashCode() {
         return Objects.hash(id, carId, clientId, state, type,date);
     }
+=======
+>>>>>>> Stashed changes
 }
