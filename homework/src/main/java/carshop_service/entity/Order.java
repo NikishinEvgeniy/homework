@@ -7,6 +7,8 @@ import carshop_service.constant.OrderType;
 import carshop_service.exception.IncorrectRoleException;
 import carshop_service.exception.IncorrectStateException;
 import carshop_service.exception.IncorrectTypeException;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -28,6 +30,21 @@ public class Order {
     private OrderState state;
     private OrderType type;
     private LocalDateTime dateTime;
+
+    @JsonCreator
+    public Order(
+            @JsonProperty(value = "carId", required = true) int carId,
+            @JsonProperty(value = "clientId", required = true) int clientId,
+            @JsonProperty(value = "state", required = true) OrderState state,
+            @JsonProperty(value = "type", required = true) OrderType type,
+            @JsonProperty(value = "dateTime", required = true) LocalDateTime dateTime) {
+        this.carId = carId;
+        this.clientId = clientId;
+        this.type = type;
+        this.dateTime = dateTime;
+        this.state = state;
+    }
+
 
     @Override
     public String toString() {

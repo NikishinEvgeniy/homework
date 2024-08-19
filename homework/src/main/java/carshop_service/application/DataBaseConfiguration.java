@@ -16,6 +16,12 @@ public class DataBaseConfiguration {
     private final String password;
 
     public Connection getConnection() throws SQLException {
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         return DriverManager.getConnection(url, username, password);
     }
 
