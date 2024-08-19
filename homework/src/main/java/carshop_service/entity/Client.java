@@ -4,10 +4,9 @@ import carshop_service.constant.ClientRole;
 import carshop_service.constant.ClientState;
 import carshop_service.exception.IncorrectRoleException;
 import carshop_service.exception.IncorrectStateException;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -18,6 +17,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class Client {
 
     private int id;
@@ -28,6 +28,25 @@ public class Client {
     private String password;
     private ClientRole role;
     private ClientState state;
+
+    @JsonCreator
+    public Client(
+            @JsonProperty(value = "countOfBuy", required = true) int countOfBuy,
+            @JsonProperty(value = "name", required = true) String name,
+            @JsonProperty(value = "surname", required = true) String surname,
+            @JsonProperty(value = "login", required = true) String login,
+            @JsonProperty(value = "password", required = true) String password,
+            @JsonProperty(value = "role", required = true) ClientRole role,
+            @JsonProperty(value = "state", required = true) ClientState state) {
+        this.countOfBuy = countOfBuy;
+        this.name = name;
+        this.surname = surname;
+        this.login = login;
+        this.password = password;
+        this.role = role;
+        this.state = state;
+    }
+
 
     @Override
     public boolean equals(Object o) {
