@@ -1,0 +1,14 @@
+
+car_service:
+  url: jdbc:postgresql://localhost:5430/car_service
+  username: evgen
+  password: admin
+
+liquidbase:
+  changelog: database/changelog.xml
+  url: jdbc:postgresql://localhost:5430/car_service
+  username: evgen
+  password: admin
+  version: postgres:latest
+  database: car_service
+  defaultSchema: service_schema
