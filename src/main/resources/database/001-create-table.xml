@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+    <changeSet id="001-create-table" author="evgen">
+
+        <createTable tableName="car" schemaName="private_schema" remarks=" Создании таблицы car ">
+            <column name="id" type="INTEGER" remarks=" Столбец, который заполняется с помощью car_sequence ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="brand" type="VARCHAR(255)" remarks=" Столбец - марка "/>
+            <column name="model" type="VARCHAR(255)" remarks=" Столбец - модель "/>
+            <column name="condition" type="VARCHAR(255)" remarks=" Столбец - состояние авто "/>
+            <column name="price" type="FLOAT" remarks=" Столбец - цена "/>
+            <column name="year_of_release" type="INTEGER" remarks=" Столбец год выпуска "/>
+        </createTable>
+
+        <createTable tableName="orders" schemaName="private_schema" remarks=" Создание таблицы orders ">
+            <column name="id" type="INTEGER" remarks=" Столбец, который заполняется с помощью order_sequence ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="car_id" type="INTEGER" remarks=" Столбец - кар айди "/>
+            <column name="client_id" type="INTEGER" remarks=" Столбец - клиент айди "/>
+            <column name="state" type="VARCHAR(255)" remarks=" Столбец - состояния заказа "/>
+            <column name="type" type="VARCHAR(255)" remarks=" Столбец - типа заказа "/>
+            <column name="date_time" type="VARCHAR(255)" remarks=" Столбец - времени и даты создания заказа "/>
+        </createTable>
+
+        <createTable tableName="client" schemaName="private_schema" remarks=" Создание таблицы client ">
+            <column name="id" type="INTEGER" remarks=" Столбец, который заполняется с помощью client_sequence ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)" remarks=" Столбец - имя клиента "/>
+            <column name="surname" type="VARCHAR(255)" remarks=" Столбец - фамилия клиента "/>
+            <column name="login" type="VARCHAR(255)" remarks=" Столбец - логин клиента "/>
+            <column name="password" type="VARCHAR(255)" remarks=" Столбец - пароль клиента "/>
+            <column name="role" type="VARCHAR(255)" remarks=" Столбец - роль клиента "/>
+            <column name="state" type="VARCHAR(255)" remarks=" Столбец - состояние клиента "/>
+            <column name="count_of_buy" type="INTEGER" remarks=" Столбец - количество покупок клиента "/>
+        </createTable>
+
+        <createTable tableName="log" schemaName="private_schema" remarks=" Создание таблицы log ">
+            <column name="id" type="INTEGER" remarks=" Столбец, который заполняется с помощью log_sequence ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="client_id" type="INTEGER" remarks=" Столбец - клиент айди "/>
+            <column name="action" type="VARCHAR(255)" remarks=" Столбец - действие пользователя "/>
+            <column name="date_time" type="VARCHAR(255)" remarks=" Столбец - время и дата совершения действия пользователем "/>
+            <column name="execution_duration" type="BIGINT" remarks=" Столбец - время выполнения метода "/>
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>
