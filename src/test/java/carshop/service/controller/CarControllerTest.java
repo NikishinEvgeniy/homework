@@ -1,18 +1,19 @@
 package carshop.service.controller;
 
+import carshop.service.configuration.ApplicationWebTestConfiguration;
 import carshop.service.dto.CarDto;
 import carshop.service.entity.Car;
 import carshop.service.handler.JsonHandler;
-import carshop.service.handler.JsonHandlerImpl;
 import carshop.service.service.CarService;
-import carshop.service.service.CarServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -22,22 +23,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
+@WebMvcTest(CarController.class)
+@Import(ApplicationWebTestConfiguration.class)
 public class CarControllerTest {
-
+    @Autowired
     private MockMvc mockMvc;
+    @Autowired
     private JsonHandler jsonHandler;
+    @MockBean
     private CarService carService;
+    @Autowired
     private ObjectMapper objectMapper;
     private final String contentType = "application/json";
-
-    @BeforeEach
-    void setUp() throws Exception{
-        this.objectMapper = new ObjectMapper();
-        this.jsonHandler = new JsonHandlerImpl();
-        this.carService = Mockito.mock(CarServiceImpl.class);
-        this.mockMvc = MockMvcBuilders.standaloneSetup(new CarController(carService,jsonHandler)).build();
-    }
 
     @Test
     @DisplayName("GET(/api/cars) -> получение машин (JSON) из базы данных")

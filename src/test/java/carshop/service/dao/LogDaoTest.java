@@ -1,11 +1,11 @@
 package carshop.service.dao;
 
 import carshop.service.application.DataBaseConfiguration;
-import carshop.service.constant.LogAction;
-import carshop.service.container.PostgreContainer;
+import carshop.service.container.PostgreSQLContainerConfiguration;
 import carshop.service.entity.Log;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
+import ya.lab.loggable_starter.constant.LogAction;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,13 +18,14 @@ public class LogDaoTest {
 
     @BeforeAll
     public static void setUp() {
-        postgreContainer = new PostgreContainer().getPostgreSQLContainer();
+        postgreContainer = new PostgreSQLContainerConfiguration().getPostgreSQLContainer();
         String password = postgreContainer.getPassword();
         String username = postgreContainer.getUsername();
         DataBaseConfiguration dataBaseConfiguration = new DataBaseConfiguration(postgreContainer.getJdbcUrl()
                 ,username,password);
         logDao = new LogDaoImpl(dataBaseConfiguration);
     }
+
 
     @AfterAll
     public static void closeConnection(){

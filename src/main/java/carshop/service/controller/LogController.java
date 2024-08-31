@@ -4,11 +4,15 @@ import carshop.service.dto.LogDto;
 import carshop.service.entity.Log;
 import carshop.service.handler.JsonHandler;
 import carshop.service.service.LogService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServlet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ya.lab.timebale_starter.annotation.Timebale;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,7 +28,10 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api")
-public class LogController extends HttpServlet {
+@Tag(
+        name = "Аудиты",
+        description = "Все методы для работы с аудитами в системе"
+)public class LogController extends HttpServlet {
 
     private final LogService logService;
     private final JsonHandler jsonHandler;
@@ -35,19 +42,30 @@ public class LogController extends HttpServlet {
         this.jsonHandler = jsonHandler;
     }
 
+    @Timebale
     @GetMapping("/logs")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Получить информацию о всех существующих аудитах пользователя")
     public ResponseEntity<List<LogDto>> getAllLogs(){
         List<LogDto> allLogs = logService.getAllLogs();
         return new ResponseEntity<>(allLogs, HttpStatus.OK);
     }
 
+    @Timebale
     @PostMapping("/logs")
-    public ResponseEntity<Map<String,String>> addLog(@RequestBody Log log){
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Добавить, совершенный пользователем аудит действия")
+    public ResponseEntity<Map<String,String>> addLog(
+            @Parameter(description = "Созданный аудит действия")
+            @RequestBody Log log){
         logService.addLog(log);
         return jsonHandler.successJson();
     }
 
+    @Timebale
     @GetMapping("/logs/export")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Экспортировать аудиты действий из базы данных в файл")
     public ResponseEntity<Map<String,String>> exportLogs() throws IOException {
         logService.exportLogsInTextFile();
         return jsonHandler.successJson();

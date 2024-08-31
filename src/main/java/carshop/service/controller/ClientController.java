@@ -7,11 +7,15 @@ import carshop.service.exception.DuplicateEntityException;
 import carshop.service.exception.NoSuchEntityException;
 import carshop.service.handler.JsonHandler;
 import carshop.service.service.ClientService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServlet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ya.lab.timebale_starter.annotation.Timebale;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +31,10 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api")
+@Tag(
+        name = "Клиенты",
+        description = "Все методы для работы с клиентами в системе"
+)
 public class ClientController extends HttpServlet {
 
     private final ClientService clientService;
@@ -38,26 +46,44 @@ public class ClientController extends HttpServlet {
         this.jsonHandler = jsonHandler;
     }
 
+    @Timebale
     @GetMapping("/clients")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Получить информацию о всех существующих клиентах")
     public ResponseEntity<List<ClientDto>> getAllClients() throws DataBaseEmptyException {
         List<ClientDto> allClients = clientService.getAllClients();
         return new ResponseEntity<>(allClients, HttpStatus.OK);
     }
 
+    @Timebale
     @GetMapping("/clients/{id}")
-    public ResponseEntity<ClientDto> getClient(@PathVariable(name = "id") int id) throws NoSuchEntityException {
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Получить информацию о существующей клиенте по идентификатору")
+    public ResponseEntity<ClientDto> getClient(
+            @Parameter(description = "Идентификатор клиента")
+            @PathVariable(name = "id") int id) throws NoSuchEntityException {
         ClientDto client = clientService.getClient(id);
         return new ResponseEntity<>(client,HttpStatus.OK);
     }
 
+    @Timebale
     @PutMapping("/clients")
-    public ResponseEntity<Map<String,String>> updateClient(@RequestBody Client client) throws NoSuchEntityException {
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Обновить информацию о существующем клиенте")
+    public ResponseEntity<Map<String,String>> updateClient(
+            @Parameter(description = "Обновленный клиент, с нужным идентификатором")
+            @RequestBody Client client) throws NoSuchEntityException {
         clientService.updateClient(client);
         return jsonHandler.successJson();
     }
 
+    @Timebale
     @PostMapping("/clients")
-    public ResponseEntity<Map<String,String>> addClient(@RequestBody Client client) throws DuplicateEntityException {
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Добавить информацию о клиенте")
+    public ResponseEntity<Map<String,String>> addClient(
+            @Parameter(description = "Созданный клиент")
+            @RequestBody Client client) throws DuplicateEntityException {
         clientService.addClient(client);
         return jsonHandler.successJson();
     }

@@ -3,7 +3,7 @@ package carshop.service.dao;
 import carshop.service.application.DataBaseConfiguration;
 import carshop.service.constant.OrderState;
 import carshop.service.constant.OrderType;
-import carshop.service.container.PostgreContainer;
+import carshop.service.container.PostgreSQLContainerConfiguration;
 import carshop.service.entity.Order;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -18,13 +18,14 @@ public class OrderDaoTest {
 
     @BeforeAll
     public static void setUp() {
-        postgreContainer = new PostgreContainer().getPostgreSQLContainer();
+        postgreContainer = new PostgreSQLContainerConfiguration().getPostgreSQLContainer();
         String password = postgreContainer.getPassword();
         String username = postgreContainer.getUsername();
         DataBaseConfiguration dataBaseConfiguration = new DataBaseConfiguration(postgreContainer.getJdbcUrl()
                 ,username,password);
         orderDao = new OrderDaoImpl(dataBaseConfiguration);
     }
+
 
     @AfterAll
     public static void closeConnection(){

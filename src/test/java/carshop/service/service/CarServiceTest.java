@@ -6,6 +6,8 @@ import carshop.service.entity.Car;
 import carshop.service.exception.DataBaseEmptyException;
 import carshop.service.exception.DuplicateEntityException;
 import carshop.service.exception.NoSuchEntityException;
+import carshop.service.mapper.CarMapper;
+import carshop.service.mapper.CarMapperImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,10 +19,12 @@ public class CarServiceTest {
 
     private CarDao carDao;
     private CarService carService;
+    private CarMapper carMapper;
 
     public CarServiceTest(){
+        this.carMapper = Mockito.mock(CarMapperImpl.class);
         this.carDao = Mockito.mock(CarDaoImpl.class);
-        this.carService = new CarServiceImpl(carDao);
+        this.carService = new CarServiceImpl(carDao,carMapper);
     }
 
 

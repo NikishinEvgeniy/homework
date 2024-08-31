@@ -10,10 +10,8 @@ import java.util.List;
 /**
  * Интерфейс, нужный для маппинга
  */
-@Mapper
+@Mapper(componentModel = "spring")
 public interface ClientMapper {
-
-    ClientMapper INSTANCE = Mappers.getMapper(ClientMapper.class);
 
     ClientDto clientToClientDto(Client client);
     List<ClientDto> listOfClientsToClientsDto(List<Client> client);

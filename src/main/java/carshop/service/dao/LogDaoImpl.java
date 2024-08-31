@@ -3,9 +3,9 @@ package carshop.service.dao;
 import carshop.service.application.DataBaseConfiguration;
 import carshop.service.constant.SqlQuery;
 import carshop.service.entity.Log;
-import carshop.service.constant.LogAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import ya.lab.loggable_starter.constant.LogAction;
 
 import java.sql.*;
 import java.time.LocalDateTime;

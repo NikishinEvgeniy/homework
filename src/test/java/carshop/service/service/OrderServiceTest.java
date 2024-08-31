@@ -6,9 +6,12 @@ import carshop.service.entity.Order;
 import carshop.service.exception.DataBaseEmptyException;
 import carshop.service.exception.DuplicateEntityException;
 import carshop.service.exception.NoSuchEntityException;
+import carshop.service.mapper.OrderMapper;
+import carshop.service.mapper.OrderMapperImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.LinkedList;
@@ -16,10 +19,12 @@ import java.util.LinkedList;
 public class OrderServiceTest {
     private OrderDao orderDao;
     private OrderService orderService;
+    private OrderMapper orderMapper;
 
     public OrderServiceTest(){
         this.orderDao = Mockito.mock(OrderDaoImpl.class);
-        this.orderService = new OrderServiceImpl(orderDao);
+        this.orderMapper = Mockito.mock(OrderMapperImpl.class);
+        this.orderService = new OrderServiceImpl(orderDao,orderMapper);
     }
 
     @Test

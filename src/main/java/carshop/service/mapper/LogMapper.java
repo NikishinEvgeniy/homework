@@ -10,10 +10,8 @@ import java.util.List;
 /**
  * Интерфейс, нужный для маппинга
  */
-@Mapper
+@Mapper(componentModel = "spring")
 public interface LogMapper {
-
-    LogMapper INSTANCE = Mappers.getMapper(LogMapper.class);
 
     LogDto logToLogDto(Log log);
     List<LogDto> listLogToListLogDto(List<Log> logs);

@@ -2,8 +2,8 @@ package carshop.service.dao;
 
 
 import carshop.service.entity.Client;
-import carshop.service.annotation.Loggable;
-import carshop.service.constant.LogAction;
+import ya.lab.loggable_starter.annotation.Loggable;
+import ya.lab.loggable_starter.constant.LogAction;
 
 import java.util.List;
 

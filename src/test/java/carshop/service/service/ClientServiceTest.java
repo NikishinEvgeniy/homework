@@ -6,6 +6,8 @@ import carshop.service.entity.Client;
 import carshop.service.exception.DataBaseEmptyException;
 import carshop.service.exception.DuplicateEntityException;
 import carshop.service.exception.NoSuchEntityException;
+import carshop.service.mapper.ClientMapper;
+import carshop.service.mapper.ClientMapperImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,10 +18,12 @@ import java.util.ArrayList;
 public class ClientServiceTest {
     private ClientService clientService;
     private ClientDao clientDao;
+    private ClientMapper clientMapper;
 
     public ClientServiceTest(){
+        this.clientMapper = Mockito.mock(ClientMapperImpl.class);
         this.clientDao = Mockito.mock(ClientDaoImpl.class);
-        this.clientService = new ClientServiceImpl(clientDao);
+        this.clientService = new ClientServiceImpl(clientDao,clientMapper);
     }
 
     @Test

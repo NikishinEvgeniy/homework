@@ -10,10 +10,8 @@ import java.util.List;
 /**
  * Интерфейс, нужный для маппинга
  */
-@Mapper
+@Mapper(componentModel = "spring")
 public interface OrderMapper {
-
-    OrderMapper INSTANCE = Mappers.getMapper(OrderMapper.class);
 
     OrderDto orderToOrderDto(Order order);
     List<OrderDto> listOfOrdersToOrdersDto(List<Order> orders);

@@ -17,11 +17,12 @@ import java.util.List;
 @Service
 public class CarServiceImpl implements CarService {
 
-    private final CarMapper carMapper = CarMapper.INSTANCE;
+    private final CarMapper carMapper;
     private final CarDao carDao;
 
     @Autowired
-    public CarServiceImpl(CarDao carDao) {
+    public CarServiceImpl(CarDao carDao, CarMapper carMapper) {
+        this.carMapper = carMapper;
         this.carDao = carDao;
     }
 

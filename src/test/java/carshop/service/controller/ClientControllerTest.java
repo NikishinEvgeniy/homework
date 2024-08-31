@@ -1,18 +1,19 @@
 package carshop.service.controller;
 
+import carshop.service.configuration.ApplicationWebTestConfiguration;
 import carshop.service.dto.ClientDto;
 import carshop.service.entity.Client;
 import carshop.service.handler.JsonHandler;
-import carshop.service.handler.JsonHandlerImpl;
 import carshop.service.service.ClientService;
-import carshop.service.service.ClientServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -23,20 +24,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
+@WebMvcTest(ClientController.class)
+@Import(ApplicationWebTestConfiguration.class)
 public class ClientControllerTest {
+    @Autowired
     private MockMvc mockMvc;
+    @Autowired
     private JsonHandler jsonHandler;
+    @MockBean
     private ClientService clientService;
+    @Autowired
     private ObjectMapper objectMapper;
     private final String contentType = "application/json";
-
-    @BeforeEach
-    void setUp() throws Exception{
-        this.objectMapper = new ObjectMapper();
-        this.jsonHandler = new JsonHandlerImpl();
-        this.clientService = Mockito.mock(ClientServiceImpl.class);
-        this.mockMvc = MockMvcBuilders.standaloneSetup(new ClientController(clientService,jsonHandler)).build();
-    }
 
     @Test
     @DisplayName("GET(/api/clients) -> получение клиентов (JSON) из базы данных")

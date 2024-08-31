@@ -2,11 +2,11 @@ package carshop.service.dao;
 
 import carshop.service.application.DataBaseConfiguration;
 import carshop.service.constant.SqlQuery;
-import carshop.service.annotation.Loggable;
-import carshop.service.constant.LogAction;
 import carshop.service.entity.Car;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import ya.lab.loggable_starter.annotation.Loggable;
+import ya.lab.loggable_starter.constant.LogAction;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

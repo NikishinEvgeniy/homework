@@ -1,9 +1,9 @@
 package carshop.service.entity;
 
-import carshop.service.constant.LogAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import ya.lab.loggable_starter.constant.LogAction;
 
 import java.time.LocalDateTime;
 

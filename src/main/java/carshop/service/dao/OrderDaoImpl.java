@@ -3,12 +3,12 @@ package carshop.service.dao;
 import carshop.service.application.DataBaseConfiguration;
 import carshop.service.constant.SqlQuery;
 import carshop.service.entity.Order;
-import carshop.service.annotation.Loggable;
-import carshop.service.constant.LogAction;
 import carshop.service.constant.OrderState;
 import carshop.service.constant.OrderType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import ya.lab.loggable_starter.annotation.Loggable;
+import ya.lab.loggable_starter.constant.LogAction;
 
 import java.sql.*;
 import java.time.LocalDateTime;

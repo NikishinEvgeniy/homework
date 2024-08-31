@@ -18,11 +18,12 @@ import java.util.List;
 @Service
 public class ClientServiceImpl implements ClientService {
 
-    private final ClientMapper mapper = ClientMapper.INSTANCE;
+    private final ClientMapper mapper;
     private final ClientDao clientDao;
 
     @Autowired
-    public ClientServiceImpl(ClientDao clientDao) {
+    public ClientServiceImpl(ClientDao clientDao, ClientMapper clientMapper) {
+        this.mapper = clientMapper;
         this.clientDao = clientDao;
     }
 

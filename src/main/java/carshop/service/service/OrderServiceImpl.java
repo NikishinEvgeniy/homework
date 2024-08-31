@@ -19,11 +19,12 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderDao orderDao;
-    private final OrderMapper orderMapper = OrderMapper.INSTANCE;
+    private final OrderMapper orderMapper;
 
     @Autowired
-    public OrderServiceImpl(OrderDao orderDao) {
+    public OrderServiceImpl(OrderDao orderDao, OrderMapper orderMapper) {
         this.orderDao = orderDao;
+        this.orderMapper = orderMapper;
     }
 
     @Override

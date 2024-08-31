@@ -17,12 +17,13 @@ import java.util.List;
 @Service
 public class LogServiceImpl implements LogService {
 
-    private final LogMapper logMapper = LogMapper.INSTANCE;
+    private final LogMapper logMapper;
     private final LogDao logDao;
 
     @Autowired
-    public LogServiceImpl(LogDao logDao) {
+    public LogServiceImpl(LogDao logDao, LogMapper logMapper) {
         this.logDao = logDao;
+        this.logMapper = logMapper;
     }
 
     @Override

@@ -1,32 +1,33 @@
-package carshop.service.container;
+package carshop.service.configuration;
 
 import carshop.service.application.ConfigLoader;
+import carshop.service.application.DataBaseConfiguration;
+import carshop.service.dao.*;
 import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import lombok.Getter;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-@Getter
-public class PostgreContainer {
+@TestConfiguration
+public class ApplicationDataBaseTestConfiguration {
 
-    @Container
-    private PostgreSQLContainer<?> postgreSQLContainer;
-    private ConfigLoader configLoader;
-
-    public PostgreContainer(){
-        this.configLoader = new ConfigLoader("application.yml");
+    @Bean
+    public PostgreSQLContainer<?> postgreSQLContainer(){
+        System.out.println("Создаюсь");
+        ConfigLoader configLoader = new ConfigLoader("application.yml");
         String username = configLoader.getProperty("username");
         String password = configLoader.getProperty("password");
-        this.postgreSQLContainer = new PostgreSQLContainer<>(configLoader.getProperty("version"))
+        PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(configLoader.getProperty("version"))
                 .withDatabaseName(configLoader.getProperty("database"))
                 .withUsername(username)
                 .withPassword(password);
@@ -39,5 +40,18 @@ public class PostgreContainer {
         } catch (SQLException | LiquibaseException e) {
             throw new RuntimeException(e);
         }
+        System.out.println("Создался");
+        return postgreSQLContainer;
     }
+
+//    @Bean(name = "dataBaseTestBean")
+//    public DataBaseConfiguration dataBaseConfiguration(){
+//        PostgreSQLContainer<?> postgreSQLContainer = postgreSQLContainer();
+//        return new DataBaseConfiguration(postgreSQLContainer.getJdbcUrl(),postgreSQLContainer.getUsername(),postgreSQLContainer.getPassword());
+//    }
+//
+//    @Bean(name = "carDaoTestBean")
+//    public CarDao carDaoBean(){
+//        return new CarDaoImpl(dataBaseConfiguration());
+//    }
 }

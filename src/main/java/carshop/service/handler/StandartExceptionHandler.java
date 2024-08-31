@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -25,57 +26,68 @@ public class StandartExceptionHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String,String>> handleException(Exception exception){
         return getExceptionMessage(exception.getMessage());
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String,String>> handleException(NoSuchEntityException noSuchEntityException){
         return getExceptionMessage(noSuchEntityException.getMessage());
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String,String>> handleException(DataBaseEmptyException dataBaseEmptyException){
         return getExceptionMessage(dataBaseEmptyException.getMessage());
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String,String>> handleException(ClientIsExistException clientIsExistException){
         return getExceptionMessage(clientIsExistException.getMessage());
 
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String,String>> handleException(DuplicateEntityException duplicateEntityException){
         return getExceptionMessage(duplicateEntityException.getMessage());
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String,String>> handleException(IncorrectActionException incorrectActionException){
         return getExceptionMessage(incorrectActionException.getMessage());
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String,String>> handleException(IncorrectRoleException incorrectRoleException){
         return getExceptionMessage(incorrectRoleException.getMessage());
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String,String>> handleException(IncorrectStateException incorrectStateException){
         return getExceptionMessage(incorrectStateException.getMessage());
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String,String>> handleException(IncorrectTypeException incorrectTypeException){
         return getExceptionMessage(incorrectTypeException.getMessage());
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String,String>> handleException(NoSuchChooseException noSuchChooseException){
         return getExceptionMessage(noSuchChooseException.getMessage());
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String,String>> handleException(IOException ioException){
         return getExceptionMessage(ioException.getMessage());
     }
